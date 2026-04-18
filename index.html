@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全台私藏名單 - 攻略進度版</title>
+    <title>全台私藏名單 - 旗幟攻略版</title>
     <style>
         :root {
             --primary: #34495e;
@@ -31,51 +31,51 @@
             padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; outline: none;
         }
         
-        /* 已去過勾選框樣式 */
-        .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 14px; }
+        .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
         .check-row input { width: 18px; height: 18px; }
 
         button.main-btn {
             width: 100%; padding: 12px; background: var(--accent); color: #fff;
-            border: none; border-radius: 6px; font-size: 16px; font-weight: bold;
+            border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer;
         }
         .sort-row { display: flex; align-items: center; justify-content: space-between; margin: 15px 0 10px 0; }
-        .sort-select { padding: 5px; font-size: 14px; border-radius: 5px; }
+        .sort-select { padding: 6px; font-size: 14px; border-radius: 5px; border: 1px solid #ccc; }
         
         .list-container { display: flex; flex-direction: column; gap: 10px; }
         .item-card {
             padding: 15px; border-radius: 10px; position: relative;
             border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: all 0.3s;
+            transition: 0.2s ease;
         }
 
-        /* 類別顏色 */
-        .bg-美食 { border-left: 5px solid #ff9800; background-color: var(--cat-food); }
-        .bg-景點 { border-left: 5px solid #4caf50; background-color: var(--cat-view); }
-        .bg-住宿 { border-left: 5px solid #2196f3; background-color: var(--cat-stay); }
-        .bg-咖啡 { border-left: 5px solid #fbc02d; background-color: #fffde7; }
-        .bg-購物 { border-left: 5px solid #9c27b0; background-color: var(--cat-shop); }
-        .bg-其他 { border-left: 5px solid #9e9e9e; background-color: var(--cat-other); }
+        /* 類別邊框顏色 */
+        .bg-美食 { border-left: 6px solid #ff9800; background-color: var(--cat-food); }
+        .bg-景點 { border-left: 6px solid #4caf50; background-color: var(--cat-view); }
+        .bg-住宿 { border-left: 6px solid #2196f3; background-color: var(--cat-stay); }
+        .bg-咖啡 { border-left: 6px solid #fbc02d; background-color: #fffde7; }
+        .bg-購物 { border-left: 6px solid #9c27b0; background-color: var(--cat-shop); }
+        .bg-其他 { border-left: 6px solid #9e9e9e; background-color: var(--cat-other); }
 
-        /* 已去過狀態樣式 */
+        /* 已去過狀態 🚩 */
         .is-visited {
-            opacity: 0.6;
+            opacity: 0.65;
             background-color: #e0e0e0 !important;
-            border-left-color: #9e9e9e !important;
+            border-left-color: #78909c !important;
         }
         .is-visited .item-name-text {
             text-decoration: line-through;
-            color: #777;
+            color: #555;
         }
 
-        .item-name { font-size: 17px; font-weight: bold; margin-bottom: 3px; display: flex; justify-content: space-between; align-items: flex-start; }
-        .item-meta { font-size: 13px; color: #666; }
-        .item-stars { color: #f39c12; font-size: 13px; margin-top: 5px; }
+        .item-name { font-size: 18px; font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: flex-start; }
+        .item-meta { font-size: 14px; color: #666; }
+        .item-stars { color: #f39c12; font-size: 13px; margin-top: 6px; }
         
-        .btn-group { display: flex; gap: 5px; }
-        .del-btn { background: #ff5252; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
-        .visit-btn { background: #4caf50; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
-        .unvisit-btn { background: #78909c; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; }
+        .btn-group { display: flex; gap: 6px; }
+        button.action-btn { border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; color: white; }
+        .btn-del { background: #e74c3c; }
+        .btn-status { background: #546e7a; } /* 預設色 */
+        .btn-visited { background: #27ae60; } /* 標記去過綠 */
     </style>
 </head>
 <body>
@@ -121,12 +121,13 @@
         </div>
         <div class="check-row">
             <input type="checkbox" id="p_visited">
-            <label for="p_visited" style="font-size: 15px; color: #333; cursor: pointer;">我已經去過了</label>
+            <label for="p_visited" style="font-size: 15px; cursor: pointer;">這地方我已經去過了 🚩</label>
         </div>
         <button class="main-btn" onclick="addItem()">新增收藏</button>
     </div>
 
     <div class="sort-row">
+        <span style="font-size: 14px; font-weight: bold; color: #555;">清單排序：</span>
         <select id="sortRule" class="sort-select" onchange="renderList()">
             <option value="new">最新加入</option>
             <option value="north_south">地理位置 (北→南)</option>
@@ -152,10 +153,12 @@
         const cat = document.getElementById('p_cat').value;
         const rate = parseInt(document.getElementById('p_rate').value);
         const visited = document.getElementById('p_visited').checked;
-        if(!name) return alert('請輸入地點名稱');
+        if(!name) return alert('請輸入名稱');
         
         db.push({ id: Date.now(), name, city, cat, rate, visited });
         saveData();
+        
+        // 重置輸入框
         document.getElementById('p_name').value = '';
         document.getElementById('p_visited').checked = false;
         renderList();
@@ -171,7 +174,7 @@
     }
 
     function deleteItem(id) {
-        if(confirm('確定要刪除嗎？')) {
+        if(confirm('確定要從清單中刪除嗎？')) {
             db = db.filter(item => item.id !== id);
             saveData();
             renderList();
@@ -196,19 +199,19 @@
         }
 
         container.innerHTML = displayList.length ? '' : '<p style="text-align:center;color:#999;margin-top:20px;">尚無資料</p>';
+        
         displayList.forEach(item => {
             const card = document.createElement('div');
-            // 如果沒去過，顯示類別色；如果去過，套用 is-visited 樣式
             card.className = `item-card bg-${item.cat} ${item.visited ? 'is-visited' : ''}`;
             
             card.innerHTML = `
                 <div class="item-name">
-                    <span class="item-name-text">${item.visited ? '✅ ' : ''}${item.name}</span>
+                    <span class="item-name-text">${item.visited ? '🚩 ' : '📍 '}${item.name}</span>
                     <div class="btn-group">
-                        <button class="${item.visited ? 'unvisit-btn' : 'visit-btn'}" onclick="toggleVisited(${item.id})">
+                        <button class="action-btn ${item.visited ? 'btn-status' : 'btn-visited'}" onclick="toggleVisited(${item.id})">
                             ${item.visited ? '設為未去' : '標記去過'}
                         </button>
-                        <button class="del-btn" onclick="deleteItem(${item.id})">刪除</button>
+                        <button class="action-btn btn-del" onclick="deleteItem(${item.id})">刪除</button>
                     </div>
                 </div>
                 <div class="item-meta">📍 ${item.city} · 🏷️ ${item.cat}</div>
@@ -223,4 +226,3 @@
 
 </body>
 </html>
-
