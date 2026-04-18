@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>私藏名單 - 全點選攻略版</title>
+    <title>私藏名單 - 動物友善攻略版</title>
     <style>
         :root {
             --primary: #5d6d7e; --accent: #85c1e9; --bg: #fdfefe; --white: #ffffff;
@@ -16,13 +16,13 @@
         .page { display: none; padding: 15px; }
         .page.active { display: block; }
 
-        /* 表單元素樣式 */
+        /* 卡片樣式 */
         .card { background: var(--white); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #f0f0f0; }
         .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
         label { font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #7f8c8d; }
         input, select { padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 16px; outline: none; background: #fafafa; }
         
-        /* 選擇器容器 (類別 & 評級) */
+        /* 選擇器容器 */
         .picker-container { display: flex; flex-wrap: wrap; gap: 8px; }
         .picker-item { 
             padding: 10px 15px; border-radius: 12px; font-size: 14px; cursor: pointer; 
@@ -37,13 +37,13 @@
         .tag-親子 { background-color: #F5CBA7; }
         .tag-觀光 { background-color: var(--maca-mint); }
         .tag-住宿 { background-color: var(--maca-blue); }
-        .tag-咖啡 { background-color: var(--maca-pink); }
+        .tag-動物 { background-color: var(--maca-pink); }
         .tag-購物 { background-color: var(--maca-purple); }
         .tag-其他 { background-color: var(--maca-yellow); }
 
         .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
 
-        /* 縣市與列表 */
+        /* 縣市選單 */
         .area-title { font-size: 14px; font-weight: bold; color: #abb2b9; margin: 20px 0 10px; }
         .city-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .city-box { background: var(--white); padding: 18px 5px; border-radius: 14px; text-align: center; border: 1px solid #f0f0f0; position: relative; }
@@ -86,22 +86,22 @@
                     <div class="picker-item tag-親子" onclick="toggleTag(this, '親子')">親子</div>
                     <div class="picker-item tag-觀光" onclick="toggleTag(this, '觀光')">觀光</div>
                     <div class="picker-item tag-住宿" onclick="toggleTag(this, '住宿')">住宿</div>
-                    <div class="picker-item tag-咖啡" onclick="toggleTag(this, '咖啡')">咖啡</div>
+                    <div class="picker-item tag-動物" onclick="toggleTag(this, '動物')">動物</div>
                     <div class="picker-item tag-購物" onclick="toggleTag(this, '購物')">購物</div>
                     <div class="picker-item tag-其他" onclick="toggleTag(this, '其他')">其他</div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label>評級 (點選星等)</label>
+                <label>評級 (非必選)</label>
                 <div class="picker-container" id="ratePicker">
                     <div class="picker-item" onclick="setRate(1)">1⭐</div>
                     <div class="picker-item" onclick="setRate(2)">2⭐</div>
                     <div class="picker-item" onclick="setRate(3)">3⭐</div>
                     <div class="picker-item" onclick="setRate(4)">4⭐</div>
-                    <div class="picker-item selected" onclick="setRate(5)">5⭐</div>
+                    <div class="picker-item" onclick="setRate(5)">5⭐</div>
                 </div>
-                <input type="hidden" id="p_rate" value="5">
+                <input type="hidden" id="p_rate" value="0">
             </div>
 
             <div style="margin: 10px 0 25px; display: flex; align-items: center; gap: 10px;">
@@ -115,9 +115,7 @@
 
     <div id="pageList" class="page"><div id="cityMenu"></div></div>
 
-    <div id="pageTodo" class="page">
-        <div id="todoListContainer"></div>
-    </div>
+    <div id="pageTodo" class="page"><div id="todoListContainer"></div></div>
 
     <div id="subPageList">
         <button onclick="closeSubPage()" style="background:#555; color:white; border:none; padding:8px 15px; border-radius:20px; margin-bottom:15px;">← 返回</button>
@@ -156,11 +154,15 @@
         });
     }
 
+    // 評級邏輯：再次點擊已選中的評級可取消 (設為 0)
     function setRate(num) {
-        document.getElementById('p_rate').value = num;
+        const currentRate = parseInt(document.getElementById('p_rate').value);
+        const finalRate = (currentRate === num) ? 0 : num;
+        
+        document.getElementById('p_rate').value = finalRate;
         const items = document.querySelectorAll('#ratePicker .picker-item');
         items.forEach((item, idx) => {
-            if(idx === num - 1) item.classList.add('selected');
+            if(finalRate > 0 && idx === finalRate - 1) item.classList.add('selected');
             else item.classList.remove('selected');
         });
     }
@@ -233,6 +235,7 @@
         const cats = Array.isArray(item.cat) ? item.cat : [item.cat];
         let catHtml = ''; cats.forEach(c => { catHtml += `<span class="mini-tag tag-${c}">${c}</span>`; });
         const mapLink = item.link ? `<a href="${item.link}" target="_blank" style="text-decoration:none; font-size:20px;">🌐</a>` : '';
+        const starsHtml = item.rate > 0 ? `<div style="color:#f1c40f; font-size:14px;">${'⭐'.repeat(item.rate)}</div>` : '';
         
         card.innerHTML = `
             <div class="item-title-row">
@@ -240,7 +243,8 @@
                 ${mapLink}
             </div>
             <div class="display-cats">${catHtml}</div>
-            <div style="color:#f1c40f; font-size:14px;">${'⭐'.repeat(item.rate)} <span style="color:#999; font-size:12px; margin-left:5px;">(${item.city})</span></div>
+            ${starsHtml}
+            <div style="color:#999; font-size:12px; margin-top:5px;">📍 ${item.city}</div>
             <div class="btn-group">
                 <button class="sub-btn" style="background:#f0f3f4;" onclick="editItem(${item.id})">編輯</button>
                 <button class="sub-btn" style="background:#fadbd8; color:#e74c3c;" onclick="deleteItem(${item.id})">刪除</button>
@@ -276,7 +280,15 @@
         document.getElementById('p_name').value = itm.name;
         document.getElementById('p_link').value = itm.link || "";
         document.getElementById('p_city').value = itm.city;
-        setRate(itm.rate);
+        
+        // 評級恢復
+        document.getElementById('p_rate').value = itm.rate;
+        const rateItems = document.querySelectorAll('#ratePicker .picker-item');
+        rateItems.forEach((item, idx) => {
+            if(itm.rate > 0 && idx === itm.rate - 1) item.classList.add('selected');
+            else item.classList.remove('selected');
+        });
+
         document.getElementById('p_visited').checked = itm.visited;
         selectedCats = Array.isArray(itm.cat) ? [...itm.cat] : [itm.cat];
         document.querySelectorAll('#catPicker .picker-item').forEach(tag => {
@@ -292,15 +304,17 @@
         if(confirm('確定刪除？')) {
             db = db.filter(i => i.id !== id);
             localStorage.setItem('tw_best_list', JSON.stringify(db));
-            switchPage(document.getElementById('navTodo').classList.contains('active') ? 'todo' : 'list');
+            if(document.getElementById('navTodo').classList.contains('active')) renderTodoList();
+            else if(document.getElementById('subPageList').style.display === 'block') openSubPage(document.getElementById('subPageTitle').innerText);
         }
     }
 
     function resetForm() {
         document.getElementById('editId').value = ""; document.getElementById('p_name').value = "";
         document.getElementById('p_link').value = ""; document.getElementById('p_visited').checked = false;
-        setRate(5); selectedCats = [];
-        document.querySelectorAll('#catPicker .picker-item').forEach(tag => tag.classList.remove('selected'));
+        document.getElementById('p_rate').value = "0";
+        document.querySelectorAll('.picker-item').forEach(item => item.classList.remove('selected'));
+        selectedCats = [];
         document.getElementById('saveBtn').innerText = "儲存地點"; document.getElementById('cancelBtn').style.display = "none";
     }
 
@@ -309,4 +323,3 @@
 </script>
 </body>
 </html>
-
