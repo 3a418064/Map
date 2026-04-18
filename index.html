@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全台私藏名單 - 旗幟攻略版</title>
+    <title>全台私藏名單 - 簡潔版</title>
     <style>
         :root {
             --primary: #34495e;
@@ -30,7 +30,6 @@
         input, select {
             padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; outline: none;
         }
-        
         .check-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
         .check-row input { width: 18px; height: 18px; }
 
@@ -45,10 +44,9 @@
         .item-card {
             padding: 15px; border-radius: 10px; position: relative;
             border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: 0.2s ease;
         }
 
-        /* 類別邊框顏色 */
+        /* 類別邊框顏色與底色 - 保持不變 */
         .bg-美食 { border-left: 6px solid #ff9800; background-color: var(--cat-food); }
         .bg-景點 { border-left: 6px solid #4caf50; background-color: var(--cat-view); }
         .bg-住宿 { border-left: 6px solid #2196f3; background-color: var(--cat-stay); }
@@ -56,26 +54,14 @@
         .bg-購物 { border-left: 6px solid #9c27b0; background-color: var(--cat-shop); }
         .bg-其他 { border-left: 6px solid #9e9e9e; background-color: var(--cat-other); }
 
-        /* 已去過狀態 🚩 */
-        .is-visited {
-            opacity: 0.65;
-            background-color: #e0e0e0 !important;
-            border-left-color: #78909c !important;
-        }
-        .is-visited .item-name-text {
-            text-decoration: line-through;
-            color: #555;
-        }
-
         .item-name { font-size: 18px; font-weight: bold; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: flex-start; }
         .item-meta { font-size: 14px; color: #666; }
         .item-stars { color: #f39c12; font-size: 13px; margin-top: 6px; }
         
-        .btn-group { display: flex; gap: 6px; }
-        button.action-btn { border: none; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; color: white; }
-        .btn-del { background: #e74c3c; }
-        .btn-status { background: #546e7a; } /* 預設色 */
-        .btn-visited { background: #27ae60; } /* 標記去過綠 */
+        .btn-del { 
+            background: #e74c3c; color: white; border: none; padding: 5px 12px; 
+            border-radius: 5px; font-size: 12px; cursor: pointer; 
+        }
     </style>
 </head>
 <body>
@@ -158,19 +144,9 @@
         db.push({ id: Date.now(), name, city, cat, rate, visited });
         saveData();
         
-        // 重置輸入框
         document.getElementById('p_name').value = '';
         document.getElementById('p_visited').checked = false;
         renderList();
-    }
-
-    function toggleVisited(id) {
-        const item = db.find(i => i.id === id);
-        if(item) {
-            item.visited = !item.visited;
-            saveData();
-            renderList();
-        }
     }
 
     function deleteItem(id) {
@@ -202,17 +178,12 @@
         
         displayList.forEach(item => {
             const card = document.createElement('div');
-            card.className = `item-card bg-${item.cat} ${item.visited ? 'is-visited' : ''}`;
+            card.className = `item-card bg-${item.cat}`; // 不再使用 is-visited 類別
             
             card.innerHTML = `
                 <div class="item-name">
-                    <span class="item-name-text">${item.visited ? '🚩 ' : '📍 '}${item.name}</span>
-                    <div class="btn-group">
-                        <button class="action-btn ${item.visited ? 'btn-status' : 'btn-visited'}" onclick="toggleVisited(${item.id})">
-                            ${item.visited ? '設為未去' : '標記去過'}
-                        </button>
-                        <button class="action-btn btn-del" onclick="deleteItem(${item.id})">刪除</button>
-                    </div>
+                    <span>${item.visited ? '🚩 ' : '📍 '}${item.name}</span>
+                    <button class="btn-del" onclick="deleteItem(${item.id})">刪除</button>
                 </div>
                 <div class="item-meta">📍 ${item.city} · 🏷️ ${item.cat}</div>
                 <div class="item-stars">${'⭐'.repeat(item.rate)}</div>
