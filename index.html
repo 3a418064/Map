@@ -3,47 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>私藏名單 App - 快捷導覽版</title>
+    <title>私藏名單 - 縣市分層版</title>
     <style>
         :root {
             --primary: #34495e; --accent: #3498db; --bg: #f2f4f7; --white: #ffffff;
             --cat-food: #fff3e0; --cat-view: #e8f5e9; --cat-stay: #e3f2fd;
             --cat-shop: #f3e5f5; --cat-other: #f5f5f5;
         }
-        body { font-family: -apple-system, "Noto Sans TC", sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 70px; scroll-behavior: smooth; }
+        body { font-family: -apple-system, "Noto Sans TC", sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 70px; }
         
-        /* 頂部導覽 */
+        /* 標題與分頁 */
         .app-header { background: var(--white); padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
         .app-header h2 { margin: 0; font-size: 1.1rem; color: var(--primary); }
-
-        /* 頁面邏輯 */
         .page { display: none; padding: 15px; }
         .page.active { display: block; }
 
-        /* 縣市快速按鈕區 */
-        .city-nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 20px; }
-        .city-btn { background: var(--white); border: 1px solid #ddd; padding: 8px 2px; border-radius: 6px; font-size: 12px; text-align: center; cursor: pointer; color: #555; }
-        .city-btn:active { background: var(--accent); color: white; }
-        .area-label { font-size: 14px; font-weight: bold; color: var(--accent); margin: 15px 0 8px; border-bottom: 2px solid var(--accent); display: inline-block; }
-
-        /* 卡片樣式 */
+        /* 第一頁：新增表單 */
         .card { background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; }
         .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
         label { font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #666; }
         input, select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
-        .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; }
+        .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+
+        /* 第二頁：縣市方格選單 */
+        .area-title { font-size: 14px; font-weight: bold; color: var(--accent); margin: 15px 0 8px; padding-left: 5px; }
+        .city-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .city-box { 
+            background: var(--white); padding: 15px 5px; border-radius: 10px; text-align: center; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; position: relative;
+        }
+        .city-box .count { 
+            position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; 
+            font-size: 10px; padding: 2px 6px; border-radius: 10px; min-width: 12px;
+        }
+
+        /* 子頁面：特定縣市的名單列表 */
+        #subPageList { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: none; overflow-y: auto; padding: 15px; box-sizing: border-box; }
+        .back-btn { background: #555; color: white; padding: 8px 15px; border-radius: 20px; border: none; font-size: 14px; margin-bottom: 15px; cursor: pointer; }
 
         /* 列表卡片 */
-        .item-card { padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 12px; position: relative; }
+        .item-card { padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 12px; background: white; }
         .bg-美食 { border-left: 6px solid #ff9800; background-color: var(--cat-food); }
         .bg-景點 { border-left: 6px solid #4caf50; background-color: var(--cat-view); }
         .bg-住宿 { border-left: 6px solid #2196f3; background-color: var(--cat-stay); }
         .bg-咖啡 { border-left: 6px solid #fbc02d; background-color: #fffde7; }
         .bg-購物 { border-left: 6px solid #9c27b0; background-color: var(--cat-shop); }
         .bg-其他 { border-left: 6px solid #9e9e9e; background-color: var(--cat-other); }
-
         .item-title { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
-        .item-meta { font-size: 13px; color: #666; }
         .item-stars { color: #f39c12; margin-top: 5px; }
         .btn-group { display: flex; gap: 8px; margin-top: 10px; }
         .sub-btn { flex: 1; padding: 8px; border-radius: 6px; border: none; font-size: 12px; }
@@ -58,14 +64,12 @@
 </head>
 <body>
 
-    <div class="app-header">
-        <h2 id="headerTitle">新增名單</h2>
-    </div>
+    <div class="app-header"><h2 id="headerTitle">新增名單</h2></div>
 
     <div id="pageAdd" class="page active">
         <div class="card">
             <input type="hidden" id="editId">
-            <div class="form-group"><label>地點名稱</label><input type="text" id="p_name" placeholder="輸入名稱..."></div>
+            <div class="form-group"><label>地點名稱</label><input type="text" id="p_name" placeholder="地點名稱..."></div>
             <div style="display: flex; gap: 8px;">
                 <div class="form-group" style="flex:1;"><label>縣市</label><select id="p_city"></select></div>
                 <div class="form-group" style="flex:1;"><label>類別</label>
@@ -77,10 +81,7 @@
                 </div>
             </div>
             <div class="form-group"><label>評級</label>
-                <select id="p_rate">
-                    <option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option>
-                    <option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option>
-                </select>
+                <select id="p_rate"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
             </div>
             <div style="margin: 10px 0 20px; display: flex; align-items: center; gap: 8px;">
                 <input type="checkbox" id="p_visited" style="width:20px; height:20px;">
@@ -92,8 +93,13 @@
     </div>
 
     <div id="pageList" class="page">
-        <div class="city-nav-grid" id="cityNav"></div>
-        <div id="listContainer"></div>
+        <div id="cityMenu"></div>
+    </div>
+
+    <div id="subPageList">
+        <button class="back-btn" onclick="closeSubPage()">← 返回縣市選單</button>
+        <h3 id="subPageTitle" style="margin-bottom:15px; color:var(--primary);"></h3>
+        <div id="subListContainer"></div>
     </div>
 
     <div class="navbar">
@@ -102,28 +108,34 @@
     </div>
 
 <script>
-    const cities = [
-        {n:"基隆市", a:"北"}, {n:"台北市", a:"北"}, {n:"新北市", a:"北"}, {n:"桃園市", a:"北"}, {n:"新竹市", a:"北"}, {n:"新竹縣", a:"北"}, {n:"宜蘭縣", a:"北"},
-        {n:"苗栗縣", a:"中"}, {n:"台中市", a:"中"}, {n:"彰化縣", a:"中"}, {n:"南投縣", a:"中"}, {n:"雲林縣", a:"中"},
-        {n:"嘉義市", a:"南"}, {n:"嘉義縣", a:"南"}, {n:"台南市", a:"南"}, {n:"高雄市", a:"南"}, {n:"屏東縣", a:"南"},
-        {n:"花蓮縣", a:"東"}, {n:"台東縣", a:"東"}, {n:"澎湖縣", a:"離島"}, {n:"金門縣", a:"離島"}, {n:"連江縣", a:"離島"}
+    const cityData = [
+        {area: "北部", cities: ["基隆市", "台北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣"]},
+        {area: "中部", cities: ["苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣"]},
+        {area: "南部", cities: ["嘉義市", "嘉義縣", "台南市", "高雄市", "屏東縣"]},
+        {area: "東部/離島", cities: ["花蓮縣", "台東縣", "澎湖縣", "金門縣", "連江縣"]}
     ];
 
     let db = JSON.parse(localStorage.getItem('tw_best_list')) || [];
 
-    // 初始化下拉選單與導覽按鈕
+    // 初始化下拉選單
     function initUI() {
         const select = document.getElementById('p_city');
-        const nav = document.getElementById('cityNav');
-        cities.forEach(c => {
-            select.innerHTML += `<option>${c.n}</option>`;
-            nav.innerHTML += `<div class="city-btn" onclick="scrollToCity('${c.n}')">${c.n}</div>`;
+        cityData.forEach(g => {
+            const optGroup = document.createElement('optgroup');
+            optGroup.label = g.area;
+            g.cities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.innerText = c;
+                optGroup.appendChild(opt);
+            });
+            select.appendChild(optGroup);
         });
     }
 
     function switchPage(p) {
         document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        closeSubPage(); // 切換大頁面時自動關閉子列表
         if(p==='add'){
             document.getElementById('pageAdd').classList.add('active');
             document.getElementById('navAdd').classList.add('active');
@@ -131,9 +143,64 @@
         } else {
             document.getElementById('pageList').classList.add('active');
             document.getElementById('navHistory').classList.add('active');
-            document.getElementById('headerTitle').innerText = "口袋名覽";
-            renderList();
+            document.getElementById('headerTitle').innerText = "選擇縣市";
+            renderCityMenu();
         }
+    }
+
+    // 渲染縣市方格選單
+    function renderCityMenu() {
+        const menu = document.getElementById('cityMenu');
+        menu.innerHTML = '';
+        cityData.forEach(g => {
+            menu.innerHTML += `<div class="area-title">${g.area}</div>`;
+            const grid = document.createElement('div');
+            grid.className = 'city-grid';
+            g.cities.forEach(c => {
+                const count = db.filter(item => item.city === c).length;
+                grid.innerHTML += `
+                    <div class="city-box" onclick="openSubPage('${c}')">
+                        ${c}
+                        ${count > 0 ? `<span class="count">${count}</span>` : ''}
+                    </div>`;
+            });
+            menu.appendChild(grid);
+        });
+    }
+
+    // 開啟特定縣市列表
+    function openSubPage(cityName) {
+        const subPage = document.getElementById('subPageList');
+        const title = document.getElementById('subPageTitle');
+        const container = document.getElementById('subListContainer');
+        
+        title.innerText = `📍 ${cityName} 的口袋名單`;
+        container.innerHTML = '';
+        
+        const filtered = db.filter(item => item.city === cityName).sort((a,b) => b.id - a.id);
+        
+        if(filtered.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999; margin-top:30px;">這裏還沒有名單喔！</p>';
+        } else {
+            filtered.forEach(item => {
+                container.innerHTML += `
+                    <div class="item-card bg-${item.cat}">
+                        <div class="item-title">${item.visited ? '🚩 ' : '📍 '}${item.name}</div>
+                        <div class="item-meta">🏷️ ${item.cat} · ${item.city}</div>
+                        <div class="item-stars">${'⭐'.repeat(item.rate)}</div>
+                        <div class="btn-group">
+                            <button class="sub-btn btn-edit" onclick="editItem(${item.id})">編輯</button>
+                            <button class="sub-btn btn-del" onclick="deleteItem(${item.id}, '${item.city}')">刪除</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        subPage.style.display = 'block';
+    }
+
+    function closeSubPage() {
+        document.getElementById('subPageList').style.display = 'none';
     }
 
     function saveItem() {
@@ -154,10 +221,15 @@
         localStorage.setItem('tw_best_list', JSON.stringify(db));
         resetForm();
         switchPage('list');
+        openSubPage(city); // 儲存後直接跳到該縣市列表查看
     }
 
-    function deleteItem(id) {
-        if(confirm('確定刪除？')) { db = db.filter(i => i.id !== id); localStorage.setItem('tw_best_list', JSON.stringify(db)); renderList(); }
+    function deleteItem(id, cityName) {
+        if(confirm('確定刪除？')) { 
+            db = db.filter(i => i.id !== id); 
+            localStorage.setItem('tw_best_list', JSON.stringify(db)); 
+            openSubPage(cityName); // 刷新該縣市列表
+        }
     }
 
     function editItem(id) {
@@ -177,50 +249,6 @@
         document.getElementById('editId').value = ""; document.getElementById('p_name').value = "";
         document.getElementById('p_visited').checked = false; document.getElementById('saveBtn').innerText = "儲存地點";
         document.getElementById('cancelBtn').style.display = "none";
-    }
-
-    function scrollToCity(cityName) {
-        const el = document.getElementById(`anchor-${cityName}`);
-        if(el) window.scrollTo({ top: el.offsetTop - 70, behavior: 'smooth' });
-        else alert('該縣市目前沒有資料');
-    }
-
-    function renderList() {
-        const container = document.getElementById('listContainer');
-        container.innerHTML = '';
-        if(!db.length) { container.innerHTML = '<p style="text-align:center;color:#999;margin-top:50px;">還沒有任何收藏喔！</p>'; return; }
-
-        let currentArea = "";
-        const sortedDb = [...db].sort((a,b) => {
-            const idxA = cities.findIndex(c => c.n === a.city);
-            const idxB = cities.findIndex(c => c.n === b.city);
-            return idxA - idxB;
-        });
-
-        let lastCity = "";
-        sortedDb.forEach(item => {
-            const cityInfo = cities.find(c => c.n === item.city);
-            if(cityInfo.a !== currentArea) {
-                currentArea = cityInfo.a;
-                container.innerHTML += `<div class="area-label">${currentArea}部地區</div>`;
-            }
-            if(item.city !== lastCity) {
-                lastCity = item.city;
-                container.innerHTML += `<div id="anchor-${item.city}" style="font-size:12px; color:#888; margin-top:10px;">📍 ${item.city}</div>`;
-            }
-
-            container.innerHTML += `
-                <div class="item-card bg-${item.cat}">
-                    <div class="item-title">${item.visited ? '🚩 ' : '📍 '}${item.name}</div>
-                    <div class="item-meta">🏷️ ${item.cat} · ${item.city}</div>
-                    <div class="item-stars">${'⭐'.repeat(item.rate)}</div>
-                    <div class="btn-group">
-                        <button class="sub-btn btn-edit" onclick="editItem(${item.id})">編輯</button>
-                        <button class="sub-btn btn-del" onclick="deleteItem(${item.id})">刪除</button>
-                    </div>
-                </div>
-            `;
-        });
     }
 
     initUI();
