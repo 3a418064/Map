@@ -3,63 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>私藏名單 - 縣市分層版</title>
+    <title>私藏名單 - 馬卡龍多選版</title>
     <style>
         :root {
-            --primary: #34495e; --accent: #3498db; --bg: #f2f4f7; --white: #ffffff;
-            --cat-food: #fff3e0; --cat-view: #e8f5e9; --cat-stay: #e3f2fd;
-            --cat-shop: #f3e5f5; --cat-other: #f5f5f5;
+            --primary: #5d6d7e; --accent: #85c1e9; --bg: #fdfefe; --white: #ffffff;
+            /* 馬卡龍色系定義 */
+            --maca-blue: #D6EAF8;   /* 住宿 */
+            --maca-green: #D5F5E3;  /* 景點 */
+            --maca-orange: #FDEBD0; /* 美食 */
+            --maca-purple: #EBDEF0; /* 購物 */
+            --maca-pink: #FADBD8;   /* 咖啡 */
+            --maca-yellow: #FCF3CF; /* 其他 */
         }
         body { font-family: -apple-system, "Noto Sans TC", sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 70px; }
         
         /* 標題與分頁 */
-        .app-header { background: var(--white); padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
-        .app-header h2 { margin: 0; font-size: 1.1rem; color: var(--primary); }
+        .app-header { background: var(--white); padding: 15px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .app-header h2 { margin: 0; font-size: 1.1rem; color: var(--primary); letter-spacing: 1px; }
         .page { display: none; padding: 15px; }
         .page.active { display: block; }
 
-        /* 第一頁：新增表單 */
-        .card { background: var(--white); padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 15px; }
-        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; }
-        label { font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #666; }
-        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none; }
-        .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        /* 卡片與表單 */
+        .card { background: var(--white); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #f0f0f0; }
+        .form-group { margin-bottom: 18px; display: flex; flex-direction: column; }
+        label { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #7f8c8d; }
+        input, select { padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 16px; outline: none; background: #fafafa; }
+        .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
-        /* 第二頁：縣市方格選單 */
-        .area-title { font-size: 14px; font-weight: bold; color: var(--accent); margin: 15px 0 8px; padding-left: 5px; }
-        .city-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        /* 多選標籤樣式 (馬卡龍) */
+        .cat-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .cat-tag { 
+            padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer;
+            border: 2px solid transparent; transition: 0.2s; color: #555; font-weight: 500;
+        }
+        /* 定義各類別顏色 */
+        .tag-美食 { background-color: var(--maca-orange); }
+        .tag-景點 { background-color: var(--maca-green); }
+        .tag-住宿 { background-color: var(--maca-blue); }
+        .tag-咖啡 { background-color: var(--maca-pink); }
+        .tag-購物 { background-color: var(--maca-purple); }
+        .tag-其他 { background-color: var(--maca-yellow); }
+        
+        .cat-tag.selected { border-color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+
+        /* 縣市選單頁 */
+        .area-title { font-size: 14px; font-weight: bold; color: #abb2b9; margin: 20px 0 10px; padding-left: 5px; }
+        .city-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
         .city-box { 
-            background: var(--white); padding: 15px 5px; border-radius: 10px; text-align: center; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); cursor: pointer; position: relative;
+            background: var(--white); padding: 18px 5px; border-radius: 14px; text-align: center; 
+            border: 1px solid #f0f0f0; cursor: pointer; position: relative; font-size: 15px; color: var(--primary);
         }
         .city-box .count { 
-            position: absolute; top: -5px; right: -5px; background: #e74c3c; color: white; 
-            font-size: 10px; padding: 2px 6px; border-radius: 10px; min-width: 12px;
+            position: absolute; top: -6px; right: -6px; background: #ff7675; color: white; 
+            font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold;
         }
 
-        /* 子頁面：特定縣市的名單列表 */
+        /* 子頁面列表 */
         #subPageList { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 2000; display: none; overflow-y: auto; padding: 15px; box-sizing: border-box; }
-        .back-btn { background: #555; color: white; padding: 8px 15px; border-radius: 20px; border: none; font-size: 14px; margin-bottom: 15px; cursor: pointer; }
+        .back-btn { background: #555; color: white; padding: 8px 18px; border-radius: 20px; border: none; font-size: 14px; margin-bottom: 20px; }
 
-        /* 列表卡片 */
-        .item-card { padding: 15px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); margin-bottom: 12px; background: white; }
-        .bg-美食 { border-left: 6px solid #ff9800; background-color: var(--cat-food); }
-        .bg-景點 { border-left: 6px solid #4caf50; background-color: var(--cat-view); }
-        .bg-住宿 { border-left: 6px solid #2196f3; background-color: var(--cat-stay); }
-        .bg-咖啡 { border-left: 6px solid #fbc02d; background-color: #fffde7; }
-        .bg-購物 { border-left: 6px solid #9c27b0; background-color: var(--cat-shop); }
-        .bg-其他 { border-left: 6px solid #9e9e9e; background-color: var(--cat-other); }
-        .item-title { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
-        .item-stars { color: #f39c12; margin-top: 5px; }
-        .btn-group { display: flex; gap: 8px; margin-top: 10px; }
-        .sub-btn { flex: 1; padding: 8px; border-radius: 6px; border: none; font-size: 12px; }
-        .btn-edit { background: rgba(0,0,0,0.05); }
-        .btn-del { background: #ff5252; color: white; }
+        /* 列表卡片 (馬卡龍展示) */
+        .item-card { padding: 18px; border-radius: 16px; margin-bottom: 15px; background: white; border: 1px solid #f0f0f0; }
+        .item-title { font-size: 18px; font-weight: bold; margin-bottom: 8px; color: var(--primary); }
+        .display-cats { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+        .mini-tag { padding: 3px 10px; border-radius: 6px; font-size: 11px; color: #666; font-weight: bold; }
+        .item-stars { color: #f1c40f; font-size: 14px; margin-top: 5px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .sub-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 13px; font-weight: bold; }
+        .btn-edit { background: #f0f3f4; color: #7f8c8d; }
+        .btn-del { background: #fadbd8; color: #e74c3c; }
 
         /* 底部導覽 */
-        .navbar { position: fixed; bottom: 0; width: 100%; height: 60px; background: var(--white); display: flex; border-top: 1px solid #ddd; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: #888; }
-        .nav-item.active { color: var(--accent); font-weight: bold; }
+        .navbar { position: fixed; bottom: 0; width: 100%; height: 65px; background: var(--white); display: flex; border-top: 1px solid #f0f0f0; z-index: 1000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #bdc3c7; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 20px; margin-bottom: 4px; }
     </style>
 </head>
 <body>
@@ -69,42 +87,46 @@
     <div id="pageAdd" class="page active">
         <div class="card">
             <input type="hidden" id="editId">
-            <div class="form-group"><label>地點名稱</label><input type="text" id="p_name" placeholder="地點名稱..."></div>
-            <div style="display: flex; gap: 8px;">
-                <div class="form-group" style="flex:1;"><label>縣市</label><select id="p_city"></select></div>
-                <div class="form-group" style="flex:1;"><label>類別</label>
-                    <select id="p_cat">
-                        <option value="美食">🍴 美食</option><option value="景點">🌲 景點</option>
-                        <option value="住宿">🏨 住宿</option><option value="咖啡">☕ 咖啡</option>
-                        <option value="購物">🛍️ 購物</option><option value="其他">📍 其他</option>
-                    </select>
+            <div class="form-group"><label>地點名稱</label><input type="text" id="p_name" placeholder="想去哪裡？"></div>
+            
+            <div class="form-group"><label>所在縣市</label><select id="p_city"></select></div>
+
+            <div class="form-group">
+                <label>類別 (可多選)</label>
+                <div class="cat-container" id="catPicker">
+                    <div class="cat-tag tag-美食" onclick="toggleTag(this, '美食')">美食</div>
+                    <div class="cat-tag tag-景點" onclick="toggleTag(this, '景點')">景點</div>
+                    <div class="cat-tag tag-住宿" onclick="toggleTag(this, '住宿')">住宿</div>
+                    <div class="cat-tag tag-咖啡" onclick="toggleTag(this, '咖啡')">咖啡</div>
+                    <div class="cat-tag tag-購物" onclick="toggleTag(this, '購物')">購物</div>
+                    <div class="cat-tag tag-其他" onclick="toggleTag(this, '其他')">其他</div>
                 </div>
             </div>
+
             <div class="form-group"><label>評級</label>
                 <select id="p_rate"><option value="5">⭐⭐⭐⭐⭐</option><option value="4">⭐⭐⭐⭐</option><option value="3">⭐⭐⭐</option><option value="2">⭐⭐</option><option value="1">⭐</option></select>
             </div>
-            <div style="margin: 10px 0 20px; display: flex; align-items: center; gap: 8px;">
-                <input type="checkbox" id="p_visited" style="width:20px; height:20px;">
-                <label for="p_visited" style="margin:0; font-size:15px;">我已經去過了 🚩</label>
+
+            <div style="margin: 10px 0 25px; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="p_visited" style="width:22px; height:22px;">
+                <label for="p_visited" style="margin:0; font-size:16px; color:#555;">已攻略此處 🚩</label>
             </div>
             <button class="main-btn" id="saveBtn" onclick="saveItem()">儲存地點</button>
-            <button class="main-btn" id="cancelBtn" onclick="resetForm()" style="background:#888; margin-top:8px; display:none;">取消編輯</button>
+            <button class="main-btn" id="cancelBtn" onclick="resetForm()" style="background:#bdc3c7; margin-top:10px; display:none;">取消編輯</button>
         </div>
     </div>
 
-    <div id="pageList" class="page">
-        <div id="cityMenu"></div>
-    </div>
+    <div id="pageList" class="page"><div id="cityMenu"></div></div>
 
     <div id="subPageList">
-        <button class="back-btn" onclick="closeSubPage()">← 返回縣市選單</button>
-        <h3 id="subPageTitle" style="margin-bottom:15px; color:var(--primary);"></h3>
+        <button class="back-btn" onclick="closeSubPage()">← 返回縣市</button>
+        <h3 id="subPageTitle" style="color:var(--primary); margin-left:5px;"></h3>
         <div id="subListContainer"></div>
     </div>
 
     <div class="navbar">
-        <div class="nav-item active" id="navAdd" onclick="switchPage('add')"><span>➕</span><span>新增</span></div>
-        <div class="nav-item" id="navHistory" onclick="switchPage('list')"><span>📜</span><span>名單</span></div>
+        <div class="nav-item active" id="navAdd" onclick="switchPage('add')"><span class="nav-icon">✦</span><span>新增</span></div>
+        <div class="nav-item" id="navHistory" onclick="switchPage('list')"><span class="nav-icon">✿</span><span>名單</span></div>
     </div>
 
 <script>
@@ -115,9 +137,9 @@
         {area: "東部/離島", cities: ["花蓮縣", "台東縣", "澎湖縣", "金門縣", "連江縣"]}
     ];
 
+    let selectedCats = [];
     let db = JSON.parse(localStorage.getItem('tw_best_list')) || [];
 
-    // 初始化下拉選單
     function initUI() {
         const select = document.getElementById('p_city');
         cityData.forEach(g => {
@@ -132,10 +154,21 @@
         });
     }
 
+    // 處理類別多選
+    function toggleTag(el, val) {
+        if(selectedCats.includes(val)) {
+            selectedCats = selectedCats.filter(item => item !== val);
+            el.classList.remove('selected');
+        } else {
+            selectedCats.push(val);
+            el.classList.add('selected');
+        }
+    }
+
     function switchPage(p) {
         document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        closeSubPage(); // 切換大頁面時自動關閉子列表
+        closeSubPage();
         if(p==='add'){
             document.getElementById('pageAdd').classList.add('active');
             document.getElementById('navAdd').classList.add('active');
@@ -148,7 +181,6 @@
         }
     }
 
-    // 渲染縣市方格選單
     function renderCityMenu() {
         const menu = document.getElementById('cityMenu');
         menu.innerHTML = '';
@@ -158,35 +190,32 @@
             grid.className = 'city-grid';
             g.cities.forEach(c => {
                 const count = db.filter(item => item.city === c).length;
-                grid.innerHTML += `
-                    <div class="city-box" onclick="openSubPage('${c}')">
-                        ${c}
-                        ${count > 0 ? `<span class="count">${count}</span>` : ''}
-                    </div>`;
+                grid.innerHTML += `<div class="city-box" onclick="openSubPage('${c}')">${c}${count > 0 ? `<span class="count">${count}</span>` : ''}</div>`;
             });
             menu.appendChild(grid);
         });
     }
 
-    // 開啟特定縣市列表
     function openSubPage(cityName) {
         const subPage = document.getElementById('subPageList');
-        const title = document.getElementById('subPageTitle');
         const container = document.getElementById('subListContainer');
-        
-        title.innerText = `📍 ${cityName} 的口袋名單`;
+        document.getElementById('subPageTitle').innerText = `${cityName}`;
         container.innerHTML = '';
         
         const filtered = db.filter(item => item.city === cityName).sort((a,b) => b.id - a.id);
-        
         if(filtered.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#999; margin-top:30px;">這裏還沒有名單喔！</p>';
+            container.innerHTML = '<p style="text-align:center; color:#bdc3c7; margin-top:50px;">這裡還沒收藏地點</p>';
         } else {
             filtered.forEach(item => {
+                // 相容舊資料 (舊資料 cat 是字串，新資料是陣列)
+                const cats = Array.isArray(item.cat) ? item.cat : [item.cat];
+                let catHtml = '';
+                cats.forEach(c => { catHtml += `<span class="mini-tag tag-${c}">${c}</span>`; });
+
                 container.innerHTML += `
-                    <div class="item-card bg-${item.cat}">
+                    <div class="item-card">
                         <div class="item-title">${item.visited ? '🚩 ' : '📍 '}${item.name}</div>
-                        <div class="item-meta">🏷️ ${item.cat} · ${item.city}</div>
+                        <div class="display-cats">${catHtml}</div>
                         <div class="item-stars">${'⭐'.repeat(item.rate)}</div>
                         <div class="btn-group">
                             <button class="sub-btn btn-edit" onclick="editItem(${item.id})">編輯</button>
@@ -199,37 +228,27 @@
         subPage.style.display = 'block';
     }
 
-    function closeSubPage() {
-        document.getElementById('subPageList').style.display = 'none';
-    }
+    function closeSubPage() { document.getElementById('subPageList').style.display = 'none'; }
 
     function saveItem() {
         const name = document.getElementById('p_name').value;
         const city = document.getElementById('p_city').value;
-        const cat = document.getElementById('p_cat').value;
         const rate = parseInt(document.getElementById('p_rate').value);
         const visited = document.getElementById('p_visited').checked;
         const editId = document.getElementById('editId').value;
-        if(!name) return alert('請輸入名稱');
+        if(!name) return alert('請輸入地點名稱');
+        if(selectedCats.length === 0) return alert('請至少選擇一個類別');
 
         if(editId) {
             const idx = db.findIndex(i => i.id == editId);
-            db[idx] = { ...db[idx], name, city, cat, rate, visited };
+            db[idx] = { ...db[idx], name, city, cat: [...selectedCats], rate, visited };
         } else {
-            db.push({ id: Date.now(), name, city, cat, rate, visited });
+            db.push({ id: Date.now(), name, city, cat: [...selectedCats], rate, visited });
         }
         localStorage.setItem('tw_best_list', JSON.stringify(db));
         resetForm();
         switchPage('list');
-        openSubPage(city); // 儲存後直接跳到該縣市列表查看
-    }
-
-    function deleteItem(id, cityName) {
-        if(confirm('確定刪除？')) { 
-            db = db.filter(i => i.id !== id); 
-            localStorage.setItem('tw_best_list', JSON.stringify(db)); 
-            openSubPage(cityName); // 刷新該縣市列表
-        }
+        openSubPage(city);
     }
 
     function editItem(id) {
@@ -237,21 +256,40 @@
         document.getElementById('editId').value = itm.id;
         document.getElementById('p_name').value = itm.name;
         document.getElementById('p_city').value = itm.city;
-        document.getElementById('p_cat').value = itm.cat;
         document.getElementById('p_rate').value = itm.rate;
         document.getElementById('p_visited').checked = itm.visited;
+        
+        // 恢復多選狀態
+        selectedCats = Array.isArray(itm.cat) ? [...itm.cat] : [itm.cat];
+        document.querySelectorAll('.cat-tag').forEach(tag => {
+            const val = tag.innerText;
+            if(selectedCats.includes(val)) tag.classList.add('selected');
+            else tag.classList.remove('selected');
+        });
+
         document.getElementById('saveBtn').innerText = "更新地點";
         document.getElementById('cancelBtn').style.display = "block";
         switchPage('add');
+    }
+
+    function deleteItem(id, cityName) {
+        if(confirm('確定刪除？')) { 
+            db = db.filter(i => i.id !== id); 
+            localStorage.setItem('tw_best_list', JSON.stringify(db)); 
+            openSubPage(cityName); 
+        }
     }
 
     function resetForm() {
         document.getElementById('editId').value = ""; document.getElementById('p_name').value = "";
         document.getElementById('p_visited').checked = false; document.getElementById('saveBtn').innerText = "儲存地點";
         document.getElementById('cancelBtn').style.display = "none";
+        selectedCats = [];
+        document.querySelectorAll('.cat-tag').forEach(tag => tag.classList.remove('selected'));
     }
 
     initUI();
 </script>
 </body>
 </html>
+
