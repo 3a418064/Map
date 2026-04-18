@@ -2,161 +2,311 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>旅遊管理 App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>私藏名單 - 全點選攻略版</title>
     <style>
-        /* 保持你原本的基礎樣式 */
-        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
-        .container { max-width: 500px; margin: auto; }
-        
-        /* 分頁按鈕樣式 */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tabs button { flex: 1; padding: 10px; cursor: pointer; border: none; background: #ddd; border-radius: 5px; }
-        .tabs button.active { background: #007bff; color: white; }
-
-        .page { display: none; }
+        :root {
+            --primary: #5d6d7e; --accent: #85c1e9; --bg: #fdfefe; --white: #ffffff;
+            --maca-blue: #D6EAF8; --maca-green: #D5F5E3; --maca-orange: #FDEBD0;
+            --maca-purple: #EBDEF0; --maca-pink: #FADBD8; --maca-yellow: #FCF3CF; --maca-mint: #D1F2EB;
+        }
+        body { font-family: -apple-system, "Noto Sans TC", sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 80px; }
+        .app-header { background: var(--white); padding: 15px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 1000; }
+        .app-header h2 { margin: 0; font-size: 1.1rem; color: var(--primary); letter-spacing: 1px; }
+        .page { display: none; padding: 15px; }
         .page.active { display: block; }
 
-        /* 卡片樣式 */
-        .item-card { 
-            background: white; border-radius: 10px; padding: 15px; 
-            margin-bottom: 10px; shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        }
+        /* 表單元素樣式 */
+        .card { background: var(--white); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #f0f0f0; }
+        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
+        label { font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #7f8c8d; }
+        input, select { padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 16px; outline: none; background: #fafafa; }
         
-        /* 第三頁專用的點選樣式 */
-        .selector-group { margin: 10px 0; display: flex; align-items: center; gap: 10px; font-size: 14px; }
-        .btn-group button { 
-            padding: 4px 10px; border: 1px solid #ccc; background: #fff; 
-            border-radius: 15px; cursor: pointer; margin-right: 5px;
+        /* 選擇器容器 (類別 & 評級) */
+        .picker-container { display: flex; flex-wrap: wrap; gap: 8px; }
+        .picker-item { 
+            padding: 10px 15px; border-radius: 12px; font-size: 14px; cursor: pointer; 
+            border: 2px solid transparent; transition: 0.2s; color: #555; font-weight: 500; text-align: center;
+            background: #f5f5f5; flex-grow: 1; min-width: 60px;
         }
-        .btn-group button.active { background: #007bff; color: white; border-color: #007bff; }
-        
-        .stars { color: #ccc; cursor: pointer; font-size: 20px; }
-        .stars .filled { color: #ffc107; }
+        .picker-item.selected { border-color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.1); background: white !important; }
 
-        /* 🚩 旗子標記：照你要求的，不畫線、不變色，只標旗子 */
-        .flag { margin-right: 5px; }
+        /* 類別專用色 */
+        .tag-美食 { background-color: var(--maca-orange); }
+        .tag-景點 { background-color: var(--maca-green); }
+        .tag-親子 { background-color: #F5CBA7; }
+        .tag-觀光 { background-color: var(--maca-mint); }
+        .tag-住宿 { background-color: var(--maca-blue); }
+        .tag-咖啡 { background-color: var(--maca-pink); }
+        .tag-購物 { background-color: var(--maca-purple); }
+        .tag-其他 { background-color: var(--maca-yellow); }
+
+        .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; }
+
+        /* 縣市與列表 */
+        .area-title { font-size: 14px; font-weight: bold; color: #abb2b9; margin: 20px 0 10px; }
+        .city-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .city-box { background: var(--white); padding: 18px 5px; border-radius: 14px; text-align: center; border: 1px solid #f0f0f0; position: relative; }
+        .city-box .count { position: absolute; top: -6px; right: -6px; background: #ff7675; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
+
+        /* 卡片設計 */
+        .item-card { padding: 18px; border-radius: 16px; margin-bottom: 15px; background: white; border: 1px solid #f0f0f0; }
+        .item-title-row { display: flex; justify-content: space-between; align-items: center; }
+        .item-title { font-size: 18px; font-weight: bold; color: var(--primary); }
+        .display-cats { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
+        .mini-tag { padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .sub-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 12px; font-weight: bold; }
+
+        /* 底部導覽 */
+        .navbar { position: fixed; bottom: 0; width: 100%; height: 70px; background: var(--white); display: flex; border-top: 1px solid #f0f0f0; z-index: 3000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #bdc3c7; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 22px; margin-bottom: 4px; }
+
+        #subPageList { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 4000; display: none; overflow-y: auto; padding: 15px; box-sizing: border-box; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <nav class="tabs">
-        <button onclick="showPage(1)" id="t1" class="active">編輯</button>
-        <button onclick="showPage(2)" id="t2">清單</button>
-        <button onclick="showPage(3)" id="t3">未造訪名單</button>
-    </nav>
+    <div class="app-header"><h2 id="headerTitle">新增名單</h2></div>
 
-    <div id="page1" class="page active">
-        <input type="text" id="inputName" placeholder="新增地點...">
-        <button onclick="addItem()">新增</button>
-        <div id="list1"></div>
+    <div id="pageAdd" class="page active">
+        <div class="card">
+            <input type="hidden" id="editId">
+            <div class="form-group"><label>地點名稱</label><input type="text" id="p_name" placeholder="輸入名稱..."></div>
+            <div class="form-group"><label>Google 地圖連結</label><input type="text" id="p_link" placeholder="貼上網址..."></div>
+            <div class="form-group"><label>所在縣市</label><select id="p_city"></select></div>
+
+            <div class="form-group">
+                <label>類別 (多選)</label>
+                <div class="picker-container" id="catPicker">
+                    <div class="picker-item tag-美食" onclick="toggleTag(this, '美食')">美食</div>
+                    <div class="picker-item tag-景點" onclick="toggleTag(this, '景點')">景點</div>
+                    <div class="picker-item tag-親子" onclick="toggleTag(this, '親子')">親子</div>
+                    <div class="picker-item tag-觀光" onclick="toggleTag(this, '觀光')">觀光</div>
+                    <div class="picker-item tag-住宿" onclick="toggleTag(this, '住宿')">住宿</div>
+                    <div class="picker-item tag-咖啡" onclick="toggleTag(this, '咖啡')">咖啡</div>
+                    <div class="picker-item tag-購物" onclick="toggleTag(this, '購物')">購物</div>
+                    <div class="picker-item tag-其他" onclick="toggleTag(this, '其他')">其他</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>評級 (點選星等)</label>
+                <div class="picker-container" id="ratePicker">
+                    <div class="picker-item" onclick="setRate(1)">1⭐</div>
+                    <div class="picker-item" onclick="setRate(2)">2⭐</div>
+                    <div class="picker-item" onclick="setRate(3)">3⭐</div>
+                    <div class="picker-item" onclick="setRate(4)">4⭐</div>
+                    <div class="picker-item selected" onclick="setRate(5)">5⭐</div>
+                </div>
+                <input type="hidden" id="p_rate" value="5">
+            </div>
+
+            <div style="margin: 10px 0 25px; display: flex; align-items: center; gap: 10px;">
+                <input type="checkbox" id="p_visited" style="width:24px; height:24px;">
+                <label for="p_visited" style="margin:0; font-size:16px; color:#555;">已攻略此處 🚩</label>
+            </div>
+            <button class="main-btn" id="saveBtn" onclick="saveItem()">儲存地點</button>
+            <button class="main-btn" id="cancelBtn" onclick="resetForm()" style="background:#bdc3c7; margin-top:10px; display:none;">取消編輯</button>
+        </div>
     </div>
 
-    <div id="page2" class="page">
-        <div id="list2"></div>
+    <div id="pageList" class="page"><div id="cityMenu"></div></div>
+
+    <div id="pageTodo" class="page">
+        <div id="todoListContainer"></div>
     </div>
 
-    <div id="page3" class="page">
-        <div id="unvisitedList"></div>
+    <div id="subPageList">
+        <button onclick="closeSubPage()" style="background:#555; color:white; border:none; padding:8px 15px; border-radius:20px; margin-bottom:15px;">← 返回</button>
+        <h3 id="subPageTitle"></h3>
+        <div id="subListContainer"></div>
     </div>
-</div>
+
+    <div class="navbar">
+        <div class="nav-item active" id="navAdd" onclick="switchPage('add')"><span class="nav-icon">➕</span><span>新增</span></div>
+        <div class="nav-item" id="navHistory" onclick="switchPage('list')"><span class="nav-icon">🗺️</span><span>縣市</span></div>
+        <div class="nav-item" id="navTodo" onclick="switchPage('todo')"><span class="nav-icon">📍</span><span>攻略中</span></div>
+    </div>
 
 <script>
-    // 資料結構
-    let items = JSON.parse(localStorage.getItem('travel_data')) || [];
-    const categories = ["美食", "景點", "住宿"];
+    const cityData = [
+        {area: "北部", cities: ["基隆市", "台北市", "新北市", "桃園市", "新竹市", "新竹縣", "宜蘭縣"]},
+        {area: "中部", cities: ["苗栗縣", "台中市", "彰化縣", "南投縣", "雲林縣"]},
+        {area: "南部", cities: ["嘉義市", "嘉義縣", "台南市", "高雄市", "屏東縣"]},
+        {area: "東部/離島", cities: ["花蓮縣", "台東縣", "澎湖縣", "金門縣", "連江縣"]}
+    ];
 
-    function showPage(p) {
-        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
-        document.getElementById('page' + p).classList.add('active');
-        document.getElementById('t' + p).classList.add('active');
-        render();
-    }
+    let selectedCats = [];
+    let db = JSON.parse(localStorage.getItem('tw_best_list')) || [];
 
-    function addItem() {
-        const val = document.getElementById('inputName').value;
-        if(!val) return;
-        items.push({
-            id: Date.now(),
-            name: val,
-            visited: false,
-            rating: 0,
-            category: "景點"
+    function initUI() {
+        const select = document.getElementById('p_city');
+        cityData.forEach(g => {
+            const optGroup = document.createElement('optgroup');
+            optGroup.label = g.area;
+            g.cities.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.innerText = c;
+                optGroup.appendChild(opt);
+            });
+            select.appendChild(optGroup);
         });
-        document.getElementById('inputName').value = '';
-        save();
     }
 
-    function toggleVisited(id) {
-        const item = items.find(i => i.id === id);
-        if(item) {
-            item.visited = !item.visited;
-            save();
+    function setRate(num) {
+        document.getElementById('p_rate').value = num;
+        const items = document.querySelectorAll('#ratePicker .picker-item');
+        items.forEach((item, idx) => {
+            if(idx === num - 1) item.classList.add('selected');
+            else item.classList.remove('selected');
+        });
+    }
+
+    function toggleTag(el, val) {
+        if(selectedCats.includes(val)) {
+            selectedCats = selectedCats.filter(item => item !== val);
+            el.classList.remove('selected');
+        } else {
+            selectedCats.push(val);
+            el.classList.add('selected');
         }
     }
 
-    function updateRate(id, r) {
-        items.find(i => i.id === id).rating = r;
-        save();
+    function switchPage(p) {
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        closeSubPage();
+        if(p==='add'){
+            document.getElementById('pageAdd').classList.add('active');
+            document.getElementById('navAdd').classList.add('active');
+            document.getElementById('headerTitle').innerText = "新增名單";
+        } else if(p==='list'){
+            document.getElementById('pageList').classList.add('active');
+            document.getElementById('navHistory').classList.add('active');
+            document.getElementById('headerTitle').innerText = "選擇縣市";
+            renderCityMenu();
+        } else {
+            document.getElementById('pageTodo').classList.add('active');
+            document.getElementById('navTodo').classList.add('active');
+            document.getElementById('headerTitle').innerText = "📍 攻略中地點";
+            renderTodoList();
+        }
     }
 
-    function updateCat(id, c) {
-        items.find(i => i.id === id).category = c;
-        save();
+    function renderCityMenu() {
+        const menu = document.getElementById('cityMenu');
+        menu.innerHTML = '';
+        cityData.forEach(g => {
+            menu.innerHTML += `<div class="area-title">${g.area}</div>`;
+            const grid = document.createElement('div');
+            grid.className = 'city-grid';
+            g.cities.forEach(c => {
+                const count = db.filter(item => item.city === c).length;
+                grid.innerHTML += `<div class="city-box" onclick="openSubPage('${c}')">${c}${count > 0 ? `<span class="count">${count}</span>` : ''}</div>`;
+            });
+            menu.appendChild(grid);
+        });
     }
 
-    function save() {
-        localStorage.setItem('travel_data', JSON.stringify(items));
-        render();
+    function renderTodoList() {
+        const container = document.getElementById('todoListContainer');
+        const todos = db.filter(item => !item.visited).sort((a,b) => b.id - a.id);
+        container.innerHTML = todos.length ? '' : '<p style="text-align:center; color:#bdc3c7; margin-top:50px;">目前沒有待攻略地點</p>';
+        todos.forEach(item => container.appendChild(createCard(item)));
     }
 
-    function render() {
-        const l1 = document.getElementById('list1');
-        const l2 = document.getElementById('list2');
-        const l3 = document.getElementById('unvisitedList');
+    function openSubPage(cityName) {
+        document.getElementById('subPageTitle').innerText = cityName;
+        const container = document.getElementById('subListContainer');
+        container.innerHTML = '';
+        const filtered = db.filter(item => item.city === cityName).sort((a,b) => b.id - a.id);
+        filtered.forEach(item => container.appendChild(createCard(item)));
+        document.getElementById('subPageList').style.display = 'block';
+    }
 
-        // 第一頁與第二頁渲染 (維持你原本的邏輯，僅補上旗子判斷)
-        const commonHtml = items.map(i => `
-            <div class="item-card">
-                ${i.visited ? '<span class="flag">🚩</span>' : ''} ${i.name}
-                <button onclick="toggleVisited(${i.id})">${i.visited ? '設為未去' : '標記去過'}</button>
+    function createCard(item) {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        const cats = Array.isArray(item.cat) ? item.cat : [item.cat];
+        let catHtml = ''; cats.forEach(c => { catHtml += `<span class="mini-tag tag-${c}">${c}</span>`; });
+        const mapLink = item.link ? `<a href="${item.link}" target="_blank" style="text-decoration:none; font-size:20px;">🌐</a>` : '';
+        
+        card.innerHTML = `
+            <div class="item-title-row">
+                <div class="item-title">${item.visited ? '🚩 ' : '📍 '}${item.name}</div>
+                ${mapLink}
             </div>
-        `).join('');
-        l1.innerHTML = commonHtml;
-        l2.innerHTML = commonHtml;
-
-        // 第三頁渲染 (只顯示未造訪 + 點選式介面)
-        l3.innerHTML = items.filter(i => !i.visited).map(i => `
-            <div class="item-card">
-                <strong>${i.name}</strong>
-                
-                <div class="selector-group">
-                    類別：
-                    <div class="btn-group">
-                        ${categories.map(c => `
-                            <button class="${i.category === c ? 'active' : ''}" onclick="updateCat(${i.id}, '${c}')">${c}</button>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <div class="selector-group">
-                    評級：
-                    <div class="stars">
-                        ${[1,2,3,4,5].map(num => `
-                            <span class="${i.rating >= num ? 'filled' : ''}" onclick="updateRate(${i.id}, ${num})">★</span>
-                        `).join('')}
-                    </div>
-                </div>
-
-                <button onclick="toggleVisited(${i.id})">點選已去</button>
+            <div class="display-cats">${catHtml}</div>
+            <div style="color:#f1c40f; font-size:14px;">${'⭐'.repeat(item.rate)} <span style="color:#999; font-size:12px; margin-left:5px;">(${item.city})</span></div>
+            <div class="btn-group">
+                <button class="sub-btn" style="background:#f0f3f4;" onclick="editItem(${item.id})">編輯</button>
+                <button class="sub-btn" style="background:#fadbd8; color:#e74c3c;" onclick="deleteItem(${item.id})">刪除</button>
             </div>
-        `).join('') || '<p>目前沒有未造訪的地點</p>';
+        `;
+        return card;
     }
 
-    render();
+    function saveItem() {
+        const name = document.getElementById('p_name').value;
+        const link = document.getElementById('p_link').value;
+        const city = document.getElementById('p_city').value;
+        const rate = parseInt(document.getElementById('p_rate').value);
+        const visited = document.getElementById('p_visited').checked;
+        const editId = document.getElementById('editId').value;
+        if(!name || selectedCats.length === 0) return alert('請填寫名稱並至少選一個類別');
+
+        const itemData = { id: editId ? parseInt(editId) : Date.now(), name, link, city, cat: [...selectedCats], rate, visited };
+        if(editId) {
+            const idx = db.findIndex(i => i.id == editId);
+            db[idx] = itemData;
+        } else {
+            db.push(itemData);
+        }
+        localStorage.setItem('tw_best_list', JSON.stringify(db));
+        resetForm();
+        switchPage(visited ? 'list' : 'todo');
+    }
+
+    function editItem(id) {
+        const itm = db.find(i => i.id === id);
+        document.getElementById('editId').value = itm.id;
+        document.getElementById('p_name').value = itm.name;
+        document.getElementById('p_link').value = itm.link || "";
+        document.getElementById('p_city').value = itm.city;
+        setRate(itm.rate);
+        document.getElementById('p_visited').checked = itm.visited;
+        selectedCats = Array.isArray(itm.cat) ? [...itm.cat] : [itm.cat];
+        document.querySelectorAll('#catPicker .picker-item').forEach(tag => {
+            if(selectedCats.includes(tag.innerText)) tag.classList.add('selected');
+            else tag.classList.remove('selected');
+        });
+        document.getElementById('saveBtn').innerText = "更新地點";
+        document.getElementById('cancelBtn').style.display = "block";
+        switchPage('add');
+    }
+
+    function deleteItem(id) {
+        if(confirm('確定刪除？')) {
+            db = db.filter(i => i.id !== id);
+            localStorage.setItem('tw_best_list', JSON.stringify(db));
+            switchPage(document.getElementById('navTodo').classList.contains('active') ? 'todo' : 'list');
+        }
+    }
+
+    function resetForm() {
+        document.getElementById('editId').value = ""; document.getElementById('p_name').value = "";
+        document.getElementById('p_link').value = ""; document.getElementById('p_visited').checked = false;
+        setRate(5); selectedCats = [];
+        document.querySelectorAll('#catPicker .picker-item').forEach(tag => tag.classList.remove('selected'));
+        document.getElementById('saveBtn').innerText = "儲存地點"; document.getElementById('cancelBtn').style.display = "none";
+    }
+
+    function closeSubPage() { document.getElementById('subPageList').style.display = 'none'; }
+    initUI();
 </script>
-
 </body>
 </html>
+
