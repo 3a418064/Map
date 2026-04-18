@@ -12,8 +12,9 @@
             --maca-green: #D5F5E3;  /* 景點 */
             --maca-orange: #FDEBD0; /* 美食 */
             --maca-purple: #EBDEF0; /* 購物 */
-            --maca-pink: #FADBD8;   /* 咖啡 */
+            --maca-pink: #FADBD8;   /* 咖啡/親子 */
             --maca-yellow: #FCF3CF; /* 其他 */
+            --maca-mint: #D1F2EB;   /* 觀光 */
         }
         body { font-family: -apple-system, "Noto Sans TC", sans-serif; background-color: var(--bg); margin: 0; padding-bottom: 70px; }
         
@@ -42,6 +43,8 @@
         .tag-住宿 { background-color: var(--maca-blue); }
         .tag-咖啡 { background-color: var(--maca-pink); }
         .tag-購物 { background-color: var(--maca-purple); }
+        .tag-親子 { background-color: #F5CBA7; } /* 稍深一點的粉橘 */
+        .tag-觀光 { background-color: var(--maca-mint); }
         .tag-其他 { background-color: var(--maca-yellow); }
         
         .cat-tag.selected { border-color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
@@ -96,6 +99,8 @@
                 <div class="cat-container" id="catPicker">
                     <div class="cat-tag tag-美食" onclick="toggleTag(this, '美食')">美食</div>
                     <div class="cat-tag tag-景點" onclick="toggleTag(this, '景點')">景點</div>
+                    <div class="cat-tag tag-親子" onclick="toggleTag(this, '親子')">親子</div>
+                    <div class="cat-tag tag-觀光" onclick="toggleTag(this, '觀光')">觀光</div>
                     <div class="cat-tag tag-住宿" onclick="toggleTag(this, '住宿')">住宿</div>
                     <div class="cat-tag tag-咖啡" onclick="toggleTag(this, '咖啡')">咖啡</div>
                     <div class="cat-tag tag-購物" onclick="toggleTag(this, '購物')">購物</div>
@@ -154,7 +159,6 @@
         });
     }
 
-    // 處理類別多選
     function toggleTag(el, val) {
         if(selectedCats.includes(val)) {
             selectedCats = selectedCats.filter(item => item !== val);
@@ -207,7 +211,6 @@
             container.innerHTML = '<p style="text-align:center; color:#bdc3c7; margin-top:50px;">這裡還沒收藏地點</p>';
         } else {
             filtered.forEach(item => {
-                // 相容舊資料 (舊資料 cat 是字串，新資料是陣列)
                 const cats = Array.isArray(item.cat) ? item.cat : [item.cat];
                 let catHtml = '';
                 cats.forEach(c => { catHtml += `<span class="mini-tag tag-${c}">${c}</span>`; });
@@ -259,7 +262,6 @@
         document.getElementById('p_rate').value = itm.rate;
         document.getElementById('p_visited').checked = itm.visited;
         
-        // 恢復多選狀態
         selectedCats = Array.isArray(itm.cat) ? [...itm.cat] : [itm.cat];
         document.querySelectorAll('.cat-tag').forEach(tag => {
             const val = tag.innerText;
@@ -292,4 +294,3 @@
 </script>
 </body>
 </html>
-
