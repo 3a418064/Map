@@ -3,106 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全台私藏清單</title>
+    <title>私藏名單 - 排序與變色版</title>
     <style>
         :root {
-            --primary: #2c3e50;
+            --primary: #34495e;
             --accent: #3498db;
-            --bg: #f8f9fa;
+            --bg: #f2f4f7;
+            /* 類別顏色 */
+            --cat-food: #fff3e0; /* 美食：淡橘 */
+            --cat-view: #e8f5e9; /* 景點：淡綠 */
+            --cat-stay: #e3f2fd; /* 住宿：淡藍 */
+            --cat-shop: #f3e5f5; /* 購物：淡紫 */
+            --cat-other: #f5f5f5; /* 其他：淡灰 */
         }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: -apple-system, "Noto Sans TC", sans-serif;
             background-color: var(--bg); margin: 0; padding: 15px; color: #333;
         }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h2 { margin: 0; color: var(--primary); }
-
-        /* 輸入區塊 */
-        .input-card {
-            background: #fff; padding: 20px; border-radius: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px;
-        }
-        .form-row { display: flex; gap: 10px; margin-bottom: 12px; }
-        .form-item { flex: 1; display: flex; flex-direction: column; }
-        label { font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #666; }
-        input, select {
-            padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; outline: none;
-        }
-        input:focus { border-color: var(--accent); }
+        .header { text-align: center; margin-bottom: 15px; }
         
+        /* 輸入與工具區塊 */
+        .input-card, .tool-card {
+            background: #fff; padding: 15px; border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px;
+        }
+        .form-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .form-item { flex: 1; display: flex; flex-direction: column; }
+        label { font-size: 12px; font-weight: bold; margin-bottom: 4px; color: #888; }
+        input, select {
+            padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 15px; outline: none;
+        }
         button.main-btn {
             width: 100%; padding: 12px; background: var(--accent); color: #fff;
-            border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
+            border: none; border-radius: 6px; font-size: 16px; font-weight: bold;
         }
+
+        /* 列表排序選單 */
+        .sort-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+        .sort-select { width: auto; padding: 5px; font-size: 13px; }
 
         /* 列表區塊 */
-        .list-container { display: flex; flex-direction: column; gap: 12px; }
+        .list-container { display: flex; flex-direction: column; gap: 10px; }
         .item-card {
-            background: #fff; padding: 15px; border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative;
-            border-left: 6px solid var(--accent);
+            padding: 15px; border-radius: 10px;
+            position: relative; border: 1px solid rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
-        .item-name { font-size: 18px; font-weight: bold; margin-bottom: 4px; }
-        .item-meta { font-size: 14px; color: #7f8c8d; }
-        .item-stars { color: #f1c40f; margin-top: 5px; }
-        .del-btn {
-            position: absolute; top: 15px; right: 15px; color: #e74c3c;
-            border: 1px solid #e74c3c; background: transparent; padding: 4px 8px;
-            border-radius: 4px; font-size: 12px;
-        }
+        /* 類別底色動態樣式 */
+        .bg-美食 { background-color: var(--cat-food); border-left: 5px solid #ff9800; }
+        .bg-景點 { background-color: var(--cat-view); border-left: 5px solid #4caf50; }
+        .bg-住宿 { background-color: var(--cat-stay); border-left: 5px solid #2196f3; }
+        .bg-購物 { background-color: var(--cat-shop); border-left: 5px solid #9c27b0; }
+        .bg-其他 { background-color: var(--cat-other); border-left: 5px solid #9e9e9e; }
+        .bg-咖啡 { background-color: #fffde7; border-left: 5px solid #fbc02d; }
 
-        /* 底部功能 */
-        .footer-tools { margin-top: 30px; text-align: center; opacity: 0.6; }
+        .item-name { font-size: 17px; font-weight: bold; margin-bottom: 3px; display: flex; justify-content: space-between; }
+        .item-meta { font-size: 13px; color: #666; }
+        .item-stars { color: #f39c12; font-size: 13px; margin-top: 5px; }
+        .del-btn {
+            background: #ff5252; color: white; border: none; padding: 3px 8px;
+            border-radius: 4px; font-size: 11px;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h2>📍 私藏口袋名單</h2>
-    </div>
+    <div class="header"><h2>📋 我的私藏口袋名單</h2></div>
 
     <div class="input-card">
-        <div class="form-item" style="margin-bottom:12px;">
+        <div class="form-item" style="margin-bottom:10px;">
             <label>地點名稱</label>
-            <input type="text" id="p_name" placeholder="例如：永康街牛肉麵">
+            <input type="text" id="p_name" placeholder="輸入名稱...">
         </div>
-        
         <div class="form-row">
             <div class="form-item">
                 <label>縣市</label>
                 <select id="p_city">
-                    <optgroup label="北部">
-                        <option value="基隆市">基隆市</option>
-                        <option value="台北市">台北市</option>
-                        <option value="新北市">新北市</option>
-                        <option value="桃園市">桃園市</option>
-                        <option value="新竹市">新竹市</option>
-                        <option value="新竹縣">新竹縣</option>
-                        <option value="宜蘭縣">宜蘭縣</option>
-                    </optgroup>
-                    <optgroup label="中部">
-                        <option value="苗栗縣">苗栗縣</option>
-                        <option value="台中市">台中市</option>
-                        <option value="彰化縣">彰化縣</option>
-                        <option value="南投縣">南投縣</option>
-                        <option value="雲林縣">雲林縣</option>
-                    </optgroup>
-                    <optgroup label="南部">
-                        <option value="嘉義市">嘉義市</option>
-                        <option value="嘉義縣">嘉義縣</option>
-                        <option value="台南市">台南市</option>
-                        <option value="高雄市">高雄市</option>
-                        <option value="屏東縣">屏東縣</option>
-                    </optgroup>
-                    <optgroup label="東部">
-                        <option value="花蓮縣">花蓮縣</option>
-                        <option value="台東縣">台東縣</option>
-                    </optgroup>
-                    <optgroup label="離島">
-                        <option value="澎湖縣">澎湖縣</option>
-                        <option value="金門縣">金門縣</option>
-                        <option value="連江縣">連江縣</option>
-                    </optgroup>
+                    <optgroup label="北部"><option>台北市</option><option>新北市</option><option>桃園市</option><option>基隆市</option><option>新竹市</option><option>新竹縣</option><option>宜蘭縣</option></optgroup>
+                    <optgroup label="中部"><option>台中市</option><option>苗栗縣</option><option>彰化縣</option><option>南投縣</option><option>雲林縣</option></optgroup>
+                    <optgroup label="南部"><option>高雄市</option><option>台南市</option><option>嘉義市</option><option>嘉義縣</option><option>屏東縣</option></optgroup>
+                    <optgroup label="東部/離島"><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option></optgroup>
                 </select>
             </div>
             <div class="form-item">
@@ -110,80 +90,97 @@
                 <select id="p_cat">
                     <option value="美食">🍴 美食</option>
                     <option value="景點">🌲 景點</option>
-                    <option value="購物">🛍️ 購物</option>
+                    <option value="住宿">🏨 住宿</option>
                     <option value="咖啡">☕ 咖啡</option>
+                    <option value="購物">🛍️ 購物</option>
                     <option value="其他">📍 其他</option>
                 </select>
             </div>
         </div>
-
-        <div class="form-item" style="margin-bottom:15px;">
-            <label>個人評分</label>
+        <div class="form-item" style="margin-bottom:12px;">
+            <label>評級</label>
             <select id="p_rate">
-                <option value="5">⭐⭐⭐⭐⭐ 超棒</option>
-                <option value="4">⭐⭐⭐⭐ 很好</option>
+                <option value="5">⭐⭐⭐⭐⭐ 必去</option>
+                <option value="4">⭐⭐⭐⭐ 推薦</option>
                 <option value="3">⭐⭐⭐ 普通</option>
                 <option value="2">⭐⭐ 普普</option>
                 <option value="1">⭐ 踩雷</option>
             </select>
         </div>
+        <button class="main-btn" onclick="addItem()">新增收藏</button>
+    </div>
 
-        <button class="main-btn" onclick="addItem()">加入收藏</button>
+    <div class="sort-row">
+        <span style="font-size: 14px; font-weight: bold; color: #555;">我的收藏列表</span>
+        <select id="sortRule" class="sort-select" onchange="renderList()">
+            <option value="new">最新加入</option>
+            <option value="city">按縣市排序</option>
+            <option value="rate">按評分 (高→低)</option>
+        </select>
     </div>
 
     <div class="list-container" id="listContainer"></div>
 
-    <div class="footer-tools">
-        <button onclick="exportData()" style="padding:5px; font-size:12px;">導出備份資料</button>
-    </div>
-
 <script>
-    let db = JSON.parse(localStorage.getItem('tw_places')) || [];
+    let db = JSON.parse(localStorage.getItem('tw_best_list')) || [];
 
     function addItem() {
         const name = document.getElementById('p_name').value;
         const city = document.getElementById('p_city').value;
         const cat = document.getElementById('p_cat').value;
-        const rate = document.getElementById('p_rate').value;
+        const rate = parseInt(document.getElementById('p_rate').value);
 
         if(!name) return alert('請輸入名稱');
 
-        db.unshift({ id: Date.now(), name, city, cat, rate });
-        saveAndRender();
+        db.push({ id: Date.now(), name, city, cat, rate });
+        localStorage.setItem('tw_best_list', JSON.stringify(db));
         document.getElementById('p_name').value = '';
+        renderList();
     }
 
     function deleteItem(id) {
-        if(confirm('確定刪除？')) {
+        if(confirm('確定刪除這個收藏嗎？')) {
             db = db.filter(item => item.id !== id);
-            saveAndRender();
+            localStorage.setItem('tw_best_list', JSON.stringify(db));
+            renderList();
         }
     }
 
-    function saveAndRender() {
-        localStorage.setItem('tw_places', JSON.stringify(db));
+    function renderList() {
         const container = document.getElementById('listContainer');
-        container.innerHTML = db.length ? '' : '<p style="text-align:center;color:#999">尚未新增任何地點</p>';
+        const rule = document.getElementById('sortRule').value;
         
-        db.forEach(item => {
-            container.innerHTML += `
-                <div class="item-card">
+        // 複製一份資料來排序，不影響原始存儲順序
+        let displayList = [...db];
+
+        // 排序邏輯
+        if (rule === 'new') {
+            displayList.sort((a, b) => b.id - a.id);
+        } else if (rule === 'city') {
+            displayList.sort((a, b) => a.city.localeCompare(b.city, 'zh-Hant'));
+        } else if (rule === 'rate') {
+            displayList.sort((a, b) => b.rate - a.rate);
+        }
+
+        container.innerHTML = displayList.length ? '' : '<p style="text-align:center;color:#999;margin-top:20px;">尚無資料，快去新增吧！</p>';
+        
+        displayList.forEach(item => {
+            const card = document.createElement('div');
+            card.className = `item-card bg-${item.cat}`;
+            card.innerHTML = `
+                <div class="item-name">
+                    ${item.name}
                     <button class="del-btn" onclick="deleteItem(${item.id})">刪除</button>
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-meta">${item.city} · ${item.cat}</div>
-                    <div class="item-stars">${'⭐'.repeat(item.rate)}</div>
                 </div>
+                <div class="item-meta">📍 ${item.city} · 🏷️ ${item.cat}</div>
+                <div class="item-stars">${'⭐'.repeat(item.rate)}</div>
             `;
+            container.appendChild(card);
         });
     }
 
-    function exportData() {
-        const dataStr = JSON.stringify(db);
-        prompt("這是您的資料 JSON 字串，請複製並妥善保存：", dataStr);
-    }
-
-    // 初始載入
-    saveAndRender();
+    // 初始執行
+    renderList();
 </script>
 
 </body>
