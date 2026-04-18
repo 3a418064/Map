@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>私藏名單 - 穩定網格版</title>
+    <title>私藏名單 - 全能篩選版</title>
     <style>
         :root {
             --primary: #5d6d7e; --accent: #85c1e9; --bg: #fdfefe; --white: #ffffff;
@@ -16,7 +16,7 @@
         .page { display: none; padding: 15px; }
         .page.active { display: block; }
 
-        /* 新增頁面樣式 */
+        /* 卡片樣式 */
         .card { background: var(--white); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #f0f0f0; }
         .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
         label { font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #7f8c8d; }
@@ -37,39 +37,19 @@
 
         .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
-        /* 第二頁：縣市分頁排版修正 */
-        .area-title { 
-            font-size: 14px; font-weight: bold; color: var(--accent); 
-            margin: 25px 0 10px; padding-left: 8px; border-left: 4px solid var(--accent);
-        }
-        .city-grid { 
-            display: grid !important; 
-            grid-template-columns: repeat(3, 1fr) !important; 
-            gap: 12px !important; 
-            width: 100%; box-sizing: border-box;
-        }
-        .city-box { 
-            background: var(--white); padding: 18px 5px; border-radius: 14px; 
-            text-align: center; border: 1px solid #f0f0f0; 
-            position: relative; font-size: 14px; color: var(--primary);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        }
-        .city-box .count { 
-            position: absolute; top: -6px; right: -6px; 
-            background: #ff7675; color: white; font-size: 10px; 
-            padding: 2px 6px; border-radius: 10px; font-weight: bold;
-        }
+        /* 網格系統 */
+        .area-title { font-size: 13px; font-weight: bold; color: var(--accent); margin: 20px 0 10px; padding-left: 8px; border-left: 4px solid var(--accent); }
+        .city-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; width: 100%; }
+        .city-box { background: var(--white); padding: 15px 5px; border-radius: 12px; text-align: center; border: 1px solid #f0f0f0; position: relative; font-size: 14px; }
+        .city-box .count { position: absolute; top: -6px; right: -6px; background: #ff7675; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
         /* 列表卡片 */
         .item-card { padding: 18px; border-radius: 16px; margin-bottom: 15px; background: white; border: 1px solid #f0f0f0; position: relative; }
-        .item-title-row { display: flex; justify-content: space-between; align-items: center; margin-right: 40px; }
         .item-title { font-size: 18px; font-weight: bold; color: var(--primary); }
         .display-cats { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
         .mini-tag { padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
         .sort-controls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 4px; }
         .sort-btn { background: #eee; border: none; width: 28px; height: 28px; border-radius: 6px; font-size: 14px; display: flex; align-items: center; justify-content: center; }
-        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
-        .sub-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 12px; font-weight: bold; cursor: pointer; }
 
         /* 底部導覽 */
         .navbar { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); display: flex; border-top: 1px solid #f0f0f0; z-index: 3000; }
@@ -118,21 +98,23 @@
                 <input type="checkbox" id="p_visited" style="width:24px; height:24px;">
                 <label for="p_visited" style="margin:0; font-size:16px; color:#555;">已攻略 🚩</label>
             </div>
-            <button class="main-btn" id="saveBtn" onclick="saveItem()">儲存地點</button>
+            <button class="main-btn" onclick="saveItem()">儲存地點</button>
             <button class="main-btn" id="cancelBtn" onclick="resetForm()" style="background:#bdc3c7; margin-top:10px; display:none;">取消編輯</button>
         </div>
     </div>
 
-    <div id="pageList" class="page">
-        <div id="cityMenu"></div>
-    </div>
+    <div id="pageList" class="page"><div id="cityMenu"></div></div>
 
     <div id="pageTodo" class="page"><div id="todoListContainer"></div></div>
 
     <div id="pageFilter" class="page">
-        <div class="filter-section card" style="padding: 10px;">
-            <label>篩選類別</label>
-            <div class="picker-container" id="filterCatPicker">
+        <div class="card" style="padding: 12px; margin-bottom: 10px;">
+            <label>1. 篩選縣市 (可複選)</label>
+            <div id="filterCityPicker" class="picker-container" style="margin-top:8px;"></div>
+        </div>
+        <div class="card" style="padding: 12px; margin-bottom: 10px;">
+            <label>2. 篩選類別 (可複選)</label>
+            <div class="picker-container" id="filterCatPicker" style="margin-top:8px;">
                 <div class="picker-item tag-美食" onclick="toggleFilterCat(this, '美食')">美食</div>
                 <div class="picker-item tag-景點" onclick="toggleFilterCat(this, '景點')">景點</div>
                 <div class="picker-item tag-親子" onclick="toggleFilterCat(this, '親子')">親子</div>
@@ -143,9 +125,9 @@
                 <div class="picker-item tag-其他" onclick="toggleFilterCat(this, '其他')">其他</div>
             </div>
         </div>
-        <div class="filter-section card" style="padding: 10px;">
-            <label>最低評級要求</label>
-            <div class="picker-container" id="filterRatePicker">
+        <div class="card" style="padding: 12px; margin-bottom: 15px;">
+            <label>3. 最低評級</label>
+            <div class="picker-container" id="filterRatePicker" style="margin-top:8px;">
                 <div class="picker-item" onclick="toggleFilterRate(this, 1)">1⭐+</div>
                 <div class="picker-item" onclick="toggleFilterRate(this, 2)">2⭐+</div>
                 <div class="picker-item" onclick="toggleFilterRate(this, 3)">3⭐+</div>
@@ -157,7 +139,7 @@
     </div>
 
     <div id="subPageList">
-        <button onclick="closeSubPage()" style="background:#555; color:white; border:none; padding:8px 15px; border-radius:20px; margin-bottom:15px; cursor:pointer;">← 返回</button>
+        <button onclick="closeSubPage()" style="background:#555; color:white; border:none; padding:8px 15px; border-radius:20px; margin-bottom:15px;">← 返回</button>
         <h3 id="subPageTitle"></h3>
         <div id="subListContainer"></div>
     </div>
@@ -178,12 +160,14 @@
     ];
 
     let selectedCats = [];
+    let filterSelectedCities = [];
     let filterSelectedCats = [];
     let filterMinRate = 0;
     let db = JSON.parse(localStorage.getItem('tw_best_list')) || [];
 
     function initUI() {
         const select = document.getElementById('p_city');
+        const filterCityPicker = document.getElementById('filterCityPicker');
         cityData.forEach(g => {
             const optGroup = document.createElement('optgroup');
             optGroup.label = g.area;
@@ -191,27 +175,26 @@
                 const opt = document.createElement('option');
                 opt.value = c; opt.innerText = c;
                 optGroup.appendChild(opt);
+                // 填充篩選頁的縣市按鈕
+                const cityBtn = document.createElement('div');
+                cityBtn.className = 'picker-item';
+                cityBtn.innerText = c;
+                cityBtn.onclick = function() { toggleFilterCity(this, c); };
+                filterCityPicker.appendChild(cityBtn);
             });
             select.appendChild(optGroup);
         });
     }
 
-    function setRate(num) {
-        const current = parseInt(document.getElementById('p_rate').value);
-        const final = (current === num) ? 0 : num;
-        document.getElementById('p_rate').value = final;
-        document.querySelectorAll('#ratePicker .picker-item').forEach((it, idx) => {
-            if(final > 0 && idx === final - 1) it.classList.add('selected');
-            else it.classList.remove('selected');
-        });
-    }
-
-    function toggleTag(el, val) {
-        if(selectedCats.includes(val)) {
-            selectedCats = selectedCats.filter(i => i !== val); el.classList.remove('selected');
+    function toggleFilterCity(el, val) {
+        if(filterSelectedCities.includes(val)) {
+            filterSelectedCities = filterSelectedCities.filter(i => i !== val);
+            el.classList.remove('selected');
         } else {
-            selectedCats.push(val); el.classList.add('selected');
+            filterSelectedCities.push(val);
+            el.classList.add('selected');
         }
+        renderFilterResult();
     }
 
     function toggleFilterCat(el, val) {
@@ -240,15 +223,35 @@
     function renderFilterResult() {
         const container = document.getElementById('filterResultContainer');
         let results = db;
+        if(filterSelectedCities.length > 0) results = results.filter(i => filterSelectedCities.includes(i.city));
         if(filterSelectedCats.length > 0) {
             results = results.filter(item => {
                 const itemCats = Array.isArray(item.cat) ? item.cat : [item.cat];
                 return filterSelectedCats.some(fc => itemCats.includes(fc));
             });
         }
-        if(filterMinRate > 0) { results = results.filter(item => item.rate >= filterMinRate); }
+        if(filterMinRate > 0) results = results.filter(item => item.rate >= filterMinRate);
         container.innerHTML = results.length ? '' : '<p style="text-align:center; color:#bdc3c7; margin-top:30px;">查無符合地點</p>';
         results.sort((a,b) => b.rate - a.rate).forEach(item => container.appendChild(createCard(item, results, 'filter')));
+    }
+
+    // 基礎功能
+    function setRate(num) {
+        const current = parseInt(document.getElementById('p_rate').value);
+        const final = (current === num) ? 0 : num;
+        document.getElementById('p_rate').value = final;
+        document.querySelectorAll('#ratePicker .picker-item').forEach((it, idx) => {
+            if(final > 0 && idx === final - 1) it.classList.add('selected');
+            else it.classList.remove('selected');
+        });
+    }
+
+    function toggleTag(el, val) {
+        if(selectedCats.includes(val)) {
+            selectedCats = selectedCats.filter(i => i !== val); el.classList.remove('selected');
+        } else {
+            selectedCats.push(val); el.classList.add('selected');
+        }
     }
 
     function switchPage(p) {
@@ -281,8 +284,7 @@
         const menu = document.getElementById('cityMenu'); menu.innerHTML = '';
         cityData.forEach(g => {
             menu.innerHTML += `<div class="area-title">${g.area}</div>`;
-            const grid = document.createElement('div'); 
-            grid.className = 'city-grid';
+            const grid = document.createElement('div'); grid.className = 'city-grid';
             g.cities.forEach(c => {
                 const count = db.filter(i => i.city === c).length;
                 grid.innerHTML += `<div class="city-box" onclick="openSubPage('${c}')">${c}${count > 0 ? `<span class="count">${count}</span>` : ''}</div>`;
@@ -312,33 +314,9 @@
         let catHtml = ''; cats.forEach(c => { catHtml += `<span class="mini-tag tag-${c}">${c}</span>`; });
         const mapLink = item.link ? `<a href="${item.link}" target="_blank" style="text-decoration:none; font-size:20px;">🌐</a>` : '';
         const starsHtml = item.rate > 0 ? `<div style="color:#f1c40f; font-size:14px;">${'⭐'.repeat(item.rate)}</div>` : '';
-        const sortHtml = (context === 'sub' || context === 'todo') ? `
-            <div class="sort-controls">
-                <button class="sort-btn" onclick="moveItem(${item.id}, -1, '${context}')">↑</button>
-                <button class="sort-btn" onclick="moveItem(${item.id}, 1, '${context}')">↓</button>
-            </div>` : '';
+        const sortHtml = (context === 'sub' || context === 'todo') ? `<div class="sort-controls"><button class="sort-btn" onclick="moveItem(${item.id}, -1, '${context}')">↑</button><button class="sort-btn" onclick="moveItem(${item.id}, 1, '${context}')">↓</button></div>` : '';
         card.innerHTML = `${sortHtml}<div class="item-title-row"><div class="item-title">${item.visited ? '🚩 ' : '📍 '}${item.name}</div>${mapLink}</div><div class="display-cats">${catHtml}</div>${starsHtml}<div style="color:#999; font-size:11px; margin-top:5px;">📍 ${item.city}</div><div class="btn-group"><button class="sub-btn" style="background:#f0f3f4;" onclick="editItem(${item.id})">編輯</button><button class="sub-btn" style="background:#fadbd8; color:#e74c3c;" onclick="deleteItem(${item.id}, '${context}')">刪除</button></div>`;
         return card;
-    }
-
-    function moveItem(id, direction, context) {
-        const idx = db.findIndex(i => i.id === id);
-        const item = db[idx];
-        let filtered;
-        if(context === 'todo') filtered = db.filter(i => !i.visited);
-        else filtered = db.filter(i => i.city === item.city);
-        const currIdx = filtered.findIndex(i => i.id === id);
-        if(direction === -1 && currIdx > 0) {
-            const target = filtered[currIdx-1];
-            const targetIdx = db.findIndex(i => i.id === target.id);
-            [db[idx], db[targetIdx]] = [db[targetIdx], db[idx]];
-        } else if(direction === 1 && currIdx < filtered.length - 1) {
-            const target = filtered[currIdx+1];
-            const targetIdx = db.findIndex(i => i.id === target.id);
-            [db[idx], db[targetIdx]] = [db[targetIdx], db[idx]];
-        }
-        localStorage.setItem('tw_best_list', JSON.stringify(db));
-        if(context === 'todo') renderTodoList(); else openSubPage(item.city);
     }
 
     function saveItem() {
@@ -396,7 +374,7 @@
         document.getElementById('p_link').value = ""; document.getElementById('p_visited').checked = false;
         document.getElementById('p_rate').value = "0"; document.getElementById('saveBtn').innerText = "儲存地點";
         document.getElementById('cancelBtn').style.display = "none";
-        selectedCats = []; document.querySelectorAll('.picker-item').forEach(item => item.classList.remove('selected'));
+        selectedCats = []; document.querySelectorAll('#catPicker .picker-item').forEach(item => item.classList.remove('selected'));
     }
 
     function closeSubPage() { document.getElementById('subPageList').style.display = 'none'; }
@@ -404,3 +382,4 @@
 </script>
 </body>
 </html>
+
