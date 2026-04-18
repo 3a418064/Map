@@ -3,317 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>旅遊地點清單管理</title>
+    <title>旅遊管理 App</title>
     <style>
-        :root {
-            --primary-color: #4a90e2;
-            --bg-color: #f5f7fa;
-            --card-bg: #ffffff;
-            --text-color: #333;
-            --accent-color: #ffc107;
-        }
+        /* 保持你原本的基礎樣式 */
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .container { max-width: 500px; margin: auto; }
+        
+        /* 分頁按鈕樣式 */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tabs button { flex: 1; padding: 10px; cursor: pointer; border: none; background: #ddd; border-radius: 5px; }
+        .tabs button.active { background: #007bff; color: white; }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-        }
-
-        /* 分頁導航 */
-        nav.tabs {
-            display: flex;
-            background: #ddd;
-            border-radius: 12px;
-            padding: 5px;
-            margin-bottom: 20px;
-        }
-
-        .tabs button {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-weight: bold;
-            border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .tabs button.active {
-            background: var(--card-bg);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        /* 頁面內容 */
-        .page {
-            display: none;
-        }
-
-        .page.active {
-            display: block;
-        }
+        .page { display: none; }
+        .page.active { display: block; }
 
         /* 卡片樣式 */
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 16px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid #eee;
+        .item-card { 
+            background: white; border-radius: 10px; padding: 15px; 
+            margin-bottom: 10px; shadow: 0 2px 5px rgba(0,0,0,0.1); 
         }
+        
+        /* 第三頁專用的點選樣式 */
+        .selector-group { margin: 10px 0; display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .btn-group button { 
+            padding: 4px 10px; border: 1px solid #ccc; background: #fff; 
+            border-radius: 15px; cursor: pointer; margin-right: 5px;
+        }
+        .btn-group button.active { background: #007bff; color: white; border-color: #007bff; }
+        
+        .stars { color: #ccc; cursor: pointer; font-size: 20px; }
+        .stars .filled { color: #ffc107; }
 
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .title {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        /* 點選式按鈕組 */
-        .selector-group {
-            margin-bottom: 12px;
-        }
-
-        .selector-label {
-            font-size: 0.9rem;
-            color: #666;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        .btn-group {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .btn-group button {
-            padding: 6px 12px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: 0.2s;
-        }
-
-        .btn-group button.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
-        }
-
-        /* 星星評分 */
-        .rating-stars {
-            font-size: 1.5rem;
-            color: #ddd;
-            cursor: pointer;
-        }
-
-        .rating-stars span.filled {
-            color: var(--accent-color);
-        }
-
-        /* 新增表單 */
-        .add-form {
-            background: #eee;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .add-form input {
-            width: calc(100% - 20px);
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            margin-bottom: 10px;
-        }
-
-        .add-btn {
-            width: 100%;
-            padding: 10px;
-            background: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .status-visited {
-            background-color: #f0f0f0;
-            opacity: 0.8;
-        }
-
-        .check-btn {
-            margin-top: 10px;
-            padding: 8px;
-            width: 100%;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            cursor: pointer;
-        }
+        /* 🚩 旗子標記：照你要求的，不畫線、不變色，只標旗子 */
+        .flag { margin-right: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <nav class="tabs">
-        <button id="tab1" class="active" onclick="showPage(1)">編輯清單</button>
-        <button id="tab2" onclick="showPage(2)">所有紀錄</button>
-        <button id="tab3" onclick="showPage(3)">還沒去名單</button>
+        <button onclick="showPage(1)" id="t1" class="active">編輯</button>
+        <button onclick="showPage(2)" id="t2">清單</button>
+        <button onclick="showPage(3)" id="t3">未造訪名單</button>
     </nav>
 
     <div id="page1" class="page active">
-        <div class="add-form">
-            <input type="text" id="newName" placeholder="輸入地點名稱...">
-            <button class="add-btn" onclick="addItem()">新增地點</button>
-        </div>
-        <div id="editList"></div>
+        <input type="text" id="inputName" placeholder="新增地點...">
+        <button onclick="addItem()">新增</button>
+        <div id="list1"></div>
     </div>
 
     <div id="page2" class="page">
-        <h2>所有景點</h2>
-        <div id="allList"></div>
+        <div id="list2"></div>
     </div>
 
     <div id="page3" class="page">
-        <h2>還沒去的名單</h2>
         <div id="unvisitedList"></div>
     </div>
 </div>
 
 <script>
-    // 初始資料
-    let locations = JSON.parse(localStorage.getItem('myTravelData')) || [
-        { id: 1, name: "台北 101", category: "景點", rating: 5, visited: false },
-        { id: 2, name: "饒河街夜市", category: "美食", rating: 4, visited: true }
-    ];
+    // 資料結構
+    let items = JSON.parse(localStorage.getItem('travel_data')) || [];
+    const categories = ["美食", "景點", "住宿"];
 
-    const categories = ["美食", "景點", "住宿", "購物"];
-
-    function saveData() {
-        localStorage.setItem('myTravelData', JSON.stringify(locations));
-        renderAll();
-    }
-
-    function showPage(pageId) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-        document.getElementById('page' + pageId).classList.add('active');
-        document.getElementById('tab' + pageId).classList.add('active');
-        renderAll();
+    function showPage(p) {
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tabs button').forEach(el => el.classList.remove('active'));
+        document.getElementById('page' + p).classList.add('active');
+        document.getElementById('t' + p).classList.add('active');
+        render();
     }
 
     function addItem() {
-        const name = document.getElementById('newName').value;
-        if (!name) return;
-        const newItem = {
+        const val = document.getElementById('inputName').value;
+        if(!val) return;
+        items.push({
             id: Date.now(),
-            name: name,
-            category: "景點",
+            name: val,
+            visited: false,
             rating: 0,
-            visited: false
-        };
-        locations.push(newItem);
-        document.getElementById('newName').value = '';
-        saveData();
+            category: "景點"
+        });
+        document.getElementById('inputName').value = '';
+        save();
     }
 
     function toggleVisited(id) {
-        const item = locations.find(l => l.id === id);
-        if (item) {
+        const item = items.find(i => i.id === id);
+        if(item) {
             item.visited = !item.visited;
-            saveData();
+            save();
         }
     }
 
-    function updateCategory(id, cat) {
-        const item = locations.find(l => l.id === id);
-        if (item) {
-            item.category = cat;
-            saveData();
-        }
+    function updateRate(id, r) {
+        items.find(i => i.id === id).rating = r;
+        save();
     }
 
-    function updateRating(id, rating) {
-        const item = locations.find(l => l.id === id);
-        if (item) {
-            item.rating = rating;
-            saveData();
-        }
+    function updateCat(id, c) {
+        items.find(i => i.id === id).category = c;
+        save();
     }
 
-    // 生成卡片 HTML 的通用函數
-    function createCardHtml(item, isThirdPage = false) {
-        return `
-            <div class="card ${item.visited && !isThirdPage ? 'status-visited' : ''}">
-                <div class="card-header">
-                    <span class="title">
-                        ${item.visited ? '🚩 ' : ''}${item.name}
-                    </span>
-                    <small>${item.visited ? '已造訪' : '待造訪'}</small>
-                </div>
+    function save() {
+        localStorage.setItem('travel_data', JSON.stringify(items));
+        render();
+    }
+
+    function render() {
+        const l1 = document.getElementById('list1');
+        const l2 = document.getElementById('list2');
+        const l3 = document.getElementById('unvisitedList');
+
+        // 第一頁與第二頁渲染 (維持你原本的邏輯，僅補上旗子判斷)
+        const commonHtml = items.map(i => `
+            <div class="item-card">
+                ${i.visited ? '<span class="flag">🚩</span>' : ''} ${i.name}
+                <button onclick="toggleVisited(${i.id})">${i.visited ? '設為未去' : '標記去過'}</button>
+            </div>
+        `).join('');
+        l1.innerHTML = commonHtml;
+        l2.innerHTML = commonHtml;
+
+        // 第三頁渲染 (只顯示未造訪 + 點選式介面)
+        l3.innerHTML = items.filter(i => !i.visited).map(i => `
+            <div class="item-card">
+                <strong>${i.name}</strong>
                 
                 <div class="selector-group">
-                    <span class="selector-label">類別點選：</span>
+                    類別：
                     <div class="btn-group">
-                        ${categories.map(cat => `
-                            <button class="${item.category === cat ? 'active' : ''}" 
-                                    onclick="updateCategory(${item.id}, '${cat}')">${cat}</button>
+                        ${categories.map(c => `
+                            <button class="${i.category === c ? 'active' : ''}" onclick="updateCat(${i.id}, '${c}')">${c}</button>
                         `).join('')}
                     </div>
                 </div>
 
                 <div class="selector-group">
-                    <span class="selector-label">評級點選：</span>
-                    <div class="rating-stars">
-                        ${[1, 2, 3, 4, 5].map(i => `
-                            <span class="${item.rating >= i ? 'filled' : ''}" 
-                                  onclick="updateRating(${item.id}, ${i})">★</span>
+                    評級：
+                    <div class="stars">
+                        ${[1,2,3,4,5].map(num => `
+                            <span class="${i.rating >= num ? 'filled' : ''}" onclick="updateRate(${i.id}, ${num})">★</span>
                         `).join('')}
                     </div>
                 </div>
 
-                <button class="check-btn" onclick="toggleVisited(${item.id})">
-                    ${item.visited ? '重設為未去' : '點選已去'}
-                </button>
+                <button onclick="toggleVisited(${i.id})">點選已去</button>
             </div>
-        `;
+        `).join('') || '<p>目前沒有未造訪的地點</p>';
     }
 
-    function renderAll() {
-        // 渲染第一頁編輯清單
-        document.getElementById('editList').innerHTML = locations.map(item => createCardHtml(item)).join('');
-        
-        // 渲染第二頁（所有）
-        document.getElementById('allList').innerHTML = locations.map(item => createCardHtml(item)).join('');
-        
-        // 渲染第三頁（還沒去名單）
-        const unvisitedItems = locations.filter(item => !item.visited);
-        document.getElementById('unvisitedList').innerHTML = unvisitedItems.length > 0 
-            ? unvisitedItems.map(item => createCardHtml(item, true)).join('')
-            : '<p style="text-align:center; color: #999;">目前沒有待辦地點！</p>';
-    }
-
-    // 初始渲染
-    renderAll();
+    render();
 </script>
 
 </body>
