@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>私藏名單 - 全能修復版</title>
+    <title>私藏名單 - 三頁精簡版</title>
     <style>
         :root {
             --primary: #5d6d7e; --accent: #85c1e9; --bg: #fdfefe; --white: #ffffff;
@@ -16,10 +16,10 @@
         .page { display: none; padding: 15px; }
         .page.active { display: block; }
 
-        /* 卡片與表單樣式 */
-        .card { background: var(--white); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 15px; border: 1px solid #f0f0f0; }
-        .form-group { margin-bottom: 20px; display: flex; flex-direction: column; }
-        label { font-size: 13px; font-weight: bold; margin-bottom: 10px; color: #7f8c8d; }
+        /* 卡片與表單 */
+        .card { background: var(--white); padding: 15px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 12px; border: 1px solid #f0f0f0; }
+        .form-group { margin-bottom: 18px; display: flex; flex-direction: column; }
+        label { font-size: 13px; font-weight: bold; margin-bottom: 8px; color: #7f8c8d; }
         input, select { padding: 12px; border: 1px solid #eee; border-radius: 10px; font-size: 16px; outline: none; background: #fafafa; }
         
         .picker-container { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -37,16 +37,16 @@
 
         .main-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; }
 
-        /* 網格與區域標題 */
-        .area-title { font-size: 14px; font-weight: bold; color: var(--accent); margin: 25px 0 10px; padding-left: 8px; border-left: 4px solid var(--accent); }
-        .city-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 12px !important; width: 100%; }
-        .city-box { background: var(--white); padding: 18px 5px; border-radius: 14px; text-align: center; border: 1px solid #f0f0f0; position: relative; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .city-box .count { position: absolute; top: -6px; right: -6px; background: #ff7675; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+        /* 網格系統 */
+        .area-title { font-size: 13px; font-weight: bold; color: var(--accent); margin: 20px 0 10px; padding-left: 8px; border-left: 4px solid var(--accent); }
+        .city-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 10px !important; width: 100%; }
+        .city-box { background: var(--white); padding: 15px 5px; border-radius: 12px; text-align: center; border: 1px solid #f0f0f0; position: relative; font-size: 14px; }
+        .city-box .count { position: absolute; top: -6px; right: -6px; background: #ff7675; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
 
-        /* 列表卡片項目 */
+        /* 列表卡片 */
         .item-card { padding: 18px; border-radius: 16px; margin-bottom: 15px; background: white; border: 1px solid #f0f0f0; position: relative; }
         .item-title-row { display: flex; justify-content: space-between; align-items: center; margin-right: 45px; }
-        .item-title { font-size: 18px; font-weight: bold; color: var(--primary); }
+        .item-title { font-size: 17px; font-weight: bold; color: var(--primary); }
         .display-cats { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
         .mini-tag { padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
         .sort-controls { position: absolute; top: 12px; right: 12px; display: flex; flex-direction: column; gap: 4px; }
@@ -54,7 +54,7 @@
         .btn-group { display: flex; gap: 10px; margin-top: 15px; }
         .sub-btn { flex: 1; padding: 10px; border-radius: 10px; border: none; font-size: 12px; font-weight: bold; cursor: pointer; }
 
-        /* 導覽列 */
+        /* 底部導覽 (三格) */
         .navbar { position: fixed; bottom: 0; width: 100%; height: 75px; background: var(--white); display: flex; border-top: 1px solid #f0f0f0; z-index: 3000; }
         .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: #bdc3c7; cursor: pointer; }
         .nav-item.active { color: var(--accent); }
@@ -108,16 +108,22 @@
 
     <div id="pageList" class="page"><div id="cityMenu"></div></div>
 
-    <div id="pageTodo" class="page"><div id="todoListContainer"></div></div>
-
     <div id="pageFilter" class="page">
         <div class="card" style="padding: 12px; margin-bottom: 10px;">
-            <label>1. 篩選縣市 (可複選)</label>
-            <div id="filterCityPicker" class="picker-container" style="margin-top:8px;"></div>
+            <label>1. 攻略狀態</label>
+            <div class="picker-container" id="filterVisitPicker">
+                <div class="picker-item selected" onclick="toggleFilterVisit(this, 'all')">全部</div>
+                <div class="picker-item" onclick="toggleFilterVisit(this, 'todo')">未攻略 📍</div>
+                <div class="picker-item" onclick="toggleFilterVisit(this, 'done')">已攻略 🚩</div>
+            </div>
         </div>
         <div class="card" style="padding: 12px; margin-bottom: 10px;">
-            <label>2. 篩選類別 (可複選)</label>
-            <div class="picker-container" id="filterCatPicker" style="margin-top:8px;">
+            <label>2. 篩選縣市 (可複選)</label>
+            <div id="filterCityPicker" class="picker-container"></div>
+        </div>
+        <div class="card" style="padding: 12px; margin-bottom: 10px;">
+            <label>3. 篩選類別 (可複選)</label>
+            <div class="picker-container" id="filterCatPicker">
                 <div class="picker-item tag-美食" onclick="toggleFilterCat(this, '美食')">美食</div>
                 <div class="picker-item tag-景點" onclick="toggleFilterCat(this, '景點')">景點</div>
                 <div class="picker-item tag-親子" onclick="toggleFilterCat(this, '親子')">親子</div>
@@ -129,8 +135,8 @@
             </div>
         </div>
         <div class="card" style="padding: 12px; margin-bottom: 15px;">
-            <label>3. 最低評級</label>
-            <div class="picker-container" id="filterRatePicker" style="margin-top:8px;">
+            <label>4. 最低評級</label>
+            <div class="picker-container" id="filterRatePicker">
                 <div class="picker-item" onclick="toggleFilterRate(this, 1)">1⭐+</div>
                 <div class="picker-item" onclick="toggleFilterRate(this, 2)">2⭐+</div>
                 <div class="picker-item" onclick="toggleFilterRate(this, 3)">3⭐+</div>
@@ -150,8 +156,7 @@
     <div class="navbar">
         <div class="nav-item active" onclick="switchPage('add')" id="navAdd"><span class="nav-icon">➕</span><span>新增</span></div>
         <div class="nav-item" onclick="switchPage('list')" id="navHistory"><span class="nav-icon">🗺️</span><span>縣市</span></div>
-        <div class="nav-item" onclick="switchPage('todo')" id="navTodo"><span class="nav-icon">📍</span><span>攻略中</span></div>
-        <div class="nav-item" onclick="switchPage('filter')" id="navFilter"><span class="nav-icon">💖</span><span>口袋</span></div>
+        <div class="nav-item" onclick="switchPage('filter')" id="navFilter"><span class="nav-icon">💖</span><span>口袋篩選</span></div>
     </div>
 
 <script>
@@ -163,12 +168,12 @@
     ];
 
     let selectedCats = [];
+    let filterVisit = 'all'; // all, todo, done
     let filterSelectedCities = [];
     let filterSelectedCats = [];
     let filterMinRate = 0;
     let db = JSON.parse(localStorage.getItem('tw_best_list')) || [];
 
-    // 初始化下拉與篩選按鈕
     function initUI() {
         const select = document.getElementById('p_city');
         const fCityPicker = document.getElementById('filterCityPicker');
@@ -190,181 +195,14 @@
         });
     }
 
-    // 核心資料操作
-    function saveItem() {
-        const name = document.getElementById('p_name').value;
-        const link = document.getElementById('p_link').value;
-        const city = document.getElementById('p_city').value;
-        const rate = parseInt(document.getElementById('p_rate').value);
-        const visited = document.getElementById('p_visited').checked;
-        const editId = document.getElementById('editId').value;
-
-        if(!name || selectedCats.length === 0) return alert('請填寫名稱與類別');
-
-        if(editId) {
-            const idx = db.findIndex(i => i.id == editId);
-            if(idx !== -1) db[idx] = { ...db[idx], name, link, city, cat: [...selectedCats], rate, visited };
-        } else {
-            db.unshift({ id: Date.now(), name, link, city, cat: [...selectedCats], rate, visited });
-        }
-        
-        localStorage.setItem('tw_best_list', JSON.stringify(db));
-        resetForm();
-        switchPage(visited ? 'list' : 'todo');
+    // 篩選器切換
+    function toggleFilterVisit(el, val) {
+        filterVisit = val;
+        document.querySelectorAll('#filterVisitPicker .picker-item').forEach(it => it.classList.remove('selected'));
+        el.classList.add('selected');
+        renderFilterResult();
     }
 
-    function editItem(id) {
-        const item = db.find(i => i.id === id);
-        if(!item) return;
-
-        document.getElementById('editId').value = item.id;
-        document.getElementById('p_name').value = item.name;
-        document.getElementById('p_link').value = item.link || "";
-        document.getElementById('p_city').value = item.city;
-        document.getElementById('p_visited').checked = item.visited;
-        
-        // 評級恢復
-        setRateFromData(item.rate);
-        
-        // 類別恢復
-        selectedCats = Array.isArray(item.cat) ? [...item.cat] : [item.cat];
-        document.querySelectorAll('#catPicker .picker-item').forEach(tag => {
-            tag.classList.toggle('selected', selectedCats.includes(tag.innerText));
-        });
-
-        document.getElementById('saveBtn').innerText = "更新地點";
-        document.getElementById('cancelBtn').style.display = "block";
-        switchPage('add');
-        window.scrollTo(0,0);
-    }
-
-    function deleteItem(id) {
-        if(!confirm('確定要刪除嗎？')) return;
-        db = db.filter(i => i.id !== id);
-        localStorage.setItem('tw_best_list', JSON.stringify(db));
-        
-        // 根據當前分頁刷新
-        if(document.getElementById('subPageList').style.display === 'block') {
-            openSubPage(document.getElementById('subPageTitle').innerText);
-        } else if(document.getElementById('pageTodo').classList.contains('active')) {
-            renderTodoList();
-        } else if(document.getElementById('pageFilter').classList.contains('active')) {
-            renderFilterResult();
-        }
-        renderCityMenu(); // 同步更新縣市選單數字
-    }
-
-    function setRateFromData(num) {
-        document.getElementById('p_rate').value = num;
-        document.querySelectorAll('#ratePicker .picker-item').forEach((it, idx) => {
-            it.classList.toggle('selected', num > 0 && idx === num - 1);
-        });
-    }
-
-    function setRate(num) {
-        const curr = parseInt(document.getElementById('p_rate').value);
-        setRateFromData(curr === num ? 0 : num);
-    }
-
-    function toggleTag(el, val) {
-        if(selectedCats.includes(val)) selectedCats = selectedCats.filter(i => i !== val);
-        else selectedCats.push(val);
-        el.classList.toggle('selected');
-    }
-
-    // 分頁與渲染
-    function switchPage(p) {
-        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        if (p !== 'sub') closeSubPage();
-        
-        const pageId = { 'add': 'pageAdd', 'list': 'pageList', 'todo': 'pageTodo', 'filter': 'pageFilter' }[p];
-        const navId = { 'add': 'navAdd', 'list': 'navHistory', 'todo': 'navTodo', 'filter': 'navFilter' }[p];
-        
-        document.getElementById(pageId).classList.add('active');
-        document.getElementById(navId).classList.add('active');
-        document.getElementById('headerTitle').innerText = { 'add':'新增名單', 'list':'選擇縣市', 'todo':'📍 攻略中', 'filter':'💖 口袋篩選' }[p];
-
-        if(p === 'list') renderCityMenu();
-        if(p === 'todo') renderTodoList();
-        if(p === 'filter') renderFilterResult();
-    }
-
-    function renderCityMenu() {
-        const menu = document.getElementById('cityMenu'); menu.innerHTML = '';
-        cityData.forEach(g => {
-            menu.innerHTML += `<div class="area-title">${g.area}</div>`;
-            const grid = document.createElement('div'); grid.className = 'city-grid';
-            g.cities.forEach(c => {
-                const count = db.filter(i => i.city === c).length;
-                grid.innerHTML += `<div class="city-box" onclick="openSubPage('${c}')">${c}${count > 0 ? `<span class="count">${count}</span>` : ''}</div>`;
-            });
-            menu.appendChild(grid);
-        });
-    }
-
-    function renderTodoList() {
-        const container = document.getElementById('todoListContainer');
-        const todos = db.filter(i => !i.visited);
-        container.innerHTML = todos.length ? '' : '<p style="text-align:center; color:#bdc3c7; margin-top:50px;">目前沒有待攻略地點</p>';
-        todos.forEach(item => container.appendChild(createCard(item, 'todo')));
-    }
-
-    function openSubPage(cityName) {
-        document.getElementById('subPageTitle').innerText = cityName;
-        const container = document.getElementById('subListContainer'); container.innerHTML = '';
-        const filtered = db.filter(i => i.city === cityName);
-        filtered.forEach(item => container.appendChild(createCard(item, 'sub')));
-        document.getElementById('subPageList').style.display = 'block';
-    }
-
-    function createCard(item, context) {
-        const card = document.createElement('div'); card.className = 'item-card';
-        const cats = Array.isArray(item.cat) ? item.cat : [item.cat];
-        let catHtml = ''; cats.forEach(c => catHtml += `<span class="mini-tag tag-${c}">${c}</span>`);
-        const mapLink = item.link ? `<a href="${item.link}" target="_blank" style="text-decoration:none; font-size:20px;">🌐</a>` : '';
-        const starsHtml = item.rate > 0 ? `<div style="color:#f1c40f; font-size:14px;">${'⭐'.repeat(item.rate)}</div>` : '';
-        
-        // 排序按鈕只在非篩選頁面出現
-        const sortHtml = (context !== 'filter') ? `
-            <div class="sort-controls">
-                <button class="sort-btn" onclick="moveItem(${item.id}, -1, '${context}')">↑</button>
-                <button class="sort-btn" onclick="moveItem(${item.id}, 1, '${context}')">↓</button>
-            </div>` : '';
-
-        card.innerHTML = `
-            ${sortHtml}
-            <div class="item-title-row">
-                <div class="item-title">${item.visited ? '🚩 ' : '📍 '}${item.name}</div>
-                ${mapLink}
-            </div>
-            <div class="display-cats">${catHtml}</div>
-            ${starsHtml}
-            <div style="color:#999; font-size:11px; margin-top:5px;">📍 ${item.city}</div>
-            <div class="btn-group">
-                <button class="sub-btn" style="background:#f0f3f4;" onclick="editItem(${item.id})">編輯</button>
-                <button class="sub-btn" style="background:#fadbd8; color:#e74c3c;" onclick="deleteItem(${item.id})">刪除</button>
-            </div>
-        `;
-        return card;
-    }
-
-    function moveItem(id, dir, context) {
-        const idx = db.findIndex(i => i.id === id);
-        const item = db[idx];
-        let list = (context === 'todo') ? db.filter(i => !i.visited) : db.filter(i => i.city === item.city);
-        const curr = list.findIndex(i => i.id === id);
-        
-        if((dir === -1 && curr > 0) || (dir === 1 && curr < list.length - 1)) {
-            const target = list[curr + dir];
-            const tIdx = db.findIndex(i => i.id === target.id);
-            [db[idx], db[tIdx]] = [db[tIdx], db[idx]];
-            localStorage.setItem('tw_best_list', JSON.stringify(db));
-            if(context === 'todo') renderTodoList(); else openSubPage(item.city);
-        }
-    }
-
-    // 篩選頁邏輯
     function toggleFilterCity(el, v) {
         if(filterSelectedCities.includes(v)) filterSelectedCities = filterSelectedCities.filter(i => i !== v);
         else filterSelectedCities.push(v);
@@ -388,21 +226,169 @@
     function renderFilterResult() {
         const container = document.getElementById('filterResultContainer');
         let res = db;
+        
+        // 1. 攻略狀態篩選
+        if(filterVisit === 'todo') res = res.filter(i => !i.visited);
+        else if(filterVisit === 'done') res = res.filter(i => i.visited);
+
+        // 2. 縣市篩選
         if(filterSelectedCities.length) res = res.filter(i => filterSelectedCities.includes(i.city));
+        
+        // 3. 類別篩選
         if(filterSelectedCats.length) res = res.filter(i => Array.isArray(i.cat) ? filterSelectedCats.some(fc => i.cat.includes(fc)) : filterSelectedCats.includes(i.cat));
+        
+        // 4. 評級篩選
         if(filterMinRate) res = res.filter(i => i.rate >= filterMinRate);
         
-        container.innerHTML = res.length ? '' : '<p style="text-align:center; color:#bdc3c7; margin-top:30px;">查無符合地點</p>';
+        container.innerHTML = res.length ? '' : '<p style="text-align:center; color:#bdc3c7; margin-top:30px;">查無符合條件的地點</p>';
         res.sort((a,b) => b.rate - a.rate).forEach(item => container.appendChild(createCard(item, 'filter')));
     }
 
+    // 資料操作
+    function saveItem() {
+        const name = document.getElementById('p_name').value;
+        const link = document.getElementById('p_link').value;
+        const city = document.getElementById('p_city').value;
+        const rate = parseInt(document.getElementById('p_rate').value);
+        const visited = document.getElementById('p_visited').checked;
+        const editId = document.getElementById('editId').value;
+
+        if(!name || selectedCats.length === 0) return alert('請填寫名稱與類別');
+
+        if(editId) {
+            const idx = db.findIndex(i => i.id == editId);
+            if(idx !== -1) db[idx] = { ...db[idx], name, link, city, cat: [...selectedCats], rate, visited };
+        } else {
+            db.unshift({ id: Date.now(), name, link, city, cat: [...selectedCats], rate, visited });
+        }
+        
+        localStorage.setItem('tw_best_list', JSON.stringify(db));
+        resetForm();
+        switchPage('filter'); // 儲存後直接跳到篩選頁看結果
+    }
+
+    function deleteItem(id) {
+        if(!confirm('確定要刪除嗎？')) return;
+        db = db.filter(i => i.id !== id);
+        localStorage.setItem('tw_best_list', JSON.stringify(db));
+        
+        if(document.getElementById('subPageList').style.display === 'block') {
+            openSubPage(document.getElementById('subPageTitle').innerText);
+        } else {
+            renderFilterResult();
+        }
+        renderCityMenu();
+    }
+
+    function editItem(id) {
+        const item = db.find(i => i.id === id);
+        if(!item) return;
+        document.getElementById('editId').value = item.id;
+        document.getElementById('p_name').value = item.name;
+        document.getElementById('p_link').value = item.link || "";
+        document.getElementById('p_city').value = item.city;
+        document.getElementById('p_visited').checked = item.visited;
+        setRateFromData(item.rate);
+        selectedCats = Array.isArray(item.cat) ? [...item.cat] : [item.cat];
+        document.querySelectorAll('#catPicker .picker-item').forEach(tag => tag.classList.toggle('selected', selectedCats.includes(tag.innerText)));
+        document.getElementById('saveBtn').innerText = "更新地點";
+        document.getElementById('cancelBtn').style.display = "block";
+        switchPage('add');
+        window.scrollTo(0,0);
+    }
+
+    function setRateFromData(num) {
+        document.getElementById('p_rate').value = num;
+        document.querySelectorAll('#ratePicker .picker-item').forEach((it, idx) => it.classList.toggle('selected', num > 0 && idx === num - 1));
+    }
+
+    function setRate(num) {
+        const curr = parseInt(document.getElementById('p_rate').value);
+        setRateFromData(curr === num ? 0 : num);
+    }
+
+    function toggleTag(el, val) {
+        if(selectedCats.includes(val)) selectedCats = selectedCats.filter(i => i !== val);
+        else selectedCats.push(val);
+        el.classList.toggle('selected');
+    }
+
+    function switchPage(p) {
+        document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if (p !== 'sub') closeSubPage();
+        
+        document.getElementById({ 'add':'pageAdd', 'list':'pageList', 'filter':'pageFilter' }[p]).classList.add('active');
+        document.getElementById({ 'add':'navAdd', 'list':'navHistory', 'filter':'navFilter' }[p]).classList.add('active');
+        document.getElementById('headerTitle').innerText = { 'add':'新增名單', 'list':'選擇縣市', 'filter':'💖 口袋篩選' }[p];
+
+        if(p === 'list') renderCityMenu();
+        if(p === 'filter') renderFilterResult();
+    }
+
+    function renderCityMenu() {
+        const menu = document.getElementById('cityMenu'); menu.innerHTML = '';
+        cityData.forEach(g => {
+            menu.innerHTML += `<div class="area-title">${g.area}</div>`;
+            const grid = document.createElement('div'); grid.className = 'city-grid';
+            g.cities.forEach(c => {
+                const count = db.filter(i => i.city === c).length;
+                grid.innerHTML += `<div class="city-box" onclick="openSubPage('${c}')">${c}${count > 0 ? `<span class="count">${count}</span>` : ''}</div>`;
+            });
+            menu.appendChild(grid);
+        });
+    }
+
+    function openSubPage(cityName) {
+        document.getElementById('subPageTitle').innerText = cityName;
+        const container = document.getElementById('subListContainer'); container.innerHTML = '';
+        const filtered = db.filter(i => i.city === cityName);
+        filtered.forEach(item => container.appendChild(createCard(item, 'sub')));
+        document.getElementById('subPageList').style.display = 'block';
+    }
+
+    function createCard(item, context) {
+        const card = document.createElement('div'); card.className = 'item-card';
+        const cats = Array.isArray(item.cat) ? item.cat : [item.cat];
+        let catHtml = ''; cats.forEach(c => catHtml += `<span class="mini-tag tag-${c}">${c}</span>`);
+        const mapLink = item.link ? `<a href="${item.link}" target="_blank" style="text-decoration:none; font-size:20px;">🌐</a>` : '';
+        const starsHtml = item.rate > 0 ? `<div style="color:#f1c40f; font-size:14px;">${'⭐'.repeat(item.rate)}</div>` : '';
+        const sortHtml = (context === 'sub') ? `<div class="sort-controls"><button class="sort-btn" onclick="moveItem(${item.id}, -1)">↑</button><button class="sort-btn" onclick="moveItem(${item.id}, 1)">↓</button></div>` : '';
+
+        card.innerHTML = `
+            ${sortHtml}
+            <div class="item-title-row">
+                <div class="item-title">${item.visited ? '🚩 ' : '📍 '}${item.name}</div>
+                ${mapLink}
+            </div>
+            <div class="display-cats">${catHtml}</div>
+            ${starsHtml}
+            <div style="color:#999; font-size:11px; margin-top:5px;">📍 ${item.city}</div>
+            <div class="btn-group">
+                <button class="sub-btn" style="background:#f0f3f4;" onclick="editItem(${item.id})">編輯</button>
+                <button class="sub-btn" style="background:#fadbd8; color:#e74c3c;" onclick="deleteItem(${item.id})">刪除</button>
+            </div>
+        `;
+        return card;
+    }
+
+    function moveItem(id, dir) {
+        const idx = db.findIndex(i => i.id === id);
+        const item = db[idx];
+        let list = db.filter(i => i.city === item.city);
+        const curr = list.findIndex(i => i.id === id);
+        if((dir === -1 && curr > 0) || (dir === 1 && curr < list.length - 1)) {
+            const tIdx = db.findIndex(i => i.id === list[curr + dir].id);
+            [db[idx], db[tIdx]] = [db[tIdx], db[idx]];
+            localStorage.setItem('tw_best_list', JSON.stringify(db));
+            openSubPage(item.city);
+        }
+    }
+
     function resetForm() {
-        document.getElementById('editId').value = "";
-        document.getElementById('p_name').value = "";
-        document.getElementById('p_link').value = "";
-        document.getElementById('p_visited').checked = false;
-        setRateFromData(0);
-        selectedCats = [];
+        document.getElementById('editId').value = ""; document.getElementById('p_name').value = "";
+        document.getElementById('p_link').value = ""; document.getElementById('p_visited').checked = false;
+        setRateFromData(0); selectedCats = [];
         document.querySelectorAll('#catPicker .picker-item').forEach(tag => tag.classList.remove('selected'));
         document.getElementById('saveBtn').innerText = "儲存地點";
         document.getElementById('cancelBtn').style.display = "none";
@@ -413,4 +399,3 @@
 </script>
 </body>
 </html>
-
